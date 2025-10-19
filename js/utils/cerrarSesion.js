@@ -1,6 +1,6 @@
 // js/utils/cerrarSesion.js
 
-// js/utils/cerrarSesion.js
+
 
 export function cerrarSesionGlobal({
   auto = false,
@@ -22,11 +22,6 @@ export function cerrarSesionGlobal({
       ? temporizadorPrincipal
       : Number.parseInt(localStorage.getItem("timeLeftPrincipal"), 10) || 0;
 
-  const status =
-    statusActual !== undefined
-      ? statusActual
-      : Number(localStorage.getItem("clickCount")) || 0;
-
   const tempFactura1 =
     temporizadorFactura1 !== undefined
       ? temporizadorFactura1
@@ -45,7 +40,6 @@ export function cerrarSesionGlobal({
   const body = JSON.stringify({
     userId,
     temporizadorPrincipal: temp,
-    statusActual: status,
     temporizadorFactura1: tempFactura1,
     temporizadorFactura2: tempFactura2,
     temporizadorFactura3: tempFactura3,
@@ -60,7 +54,6 @@ export function cerrarSesionGlobal({
 
       console.log("📡 Datos enviados con sendBeacon (auto)", {
         temp,
-        status,
         tempFactura1,
         tempFactura2,
         tempFactura3,
@@ -80,7 +73,6 @@ export function cerrarSesionGlobal({
 
     console.log("📡 Datos enviados con fetch (manual)", {
       temp,
-      status,
       tempFactura1,
       tempFactura2,
       tempFactura3,
