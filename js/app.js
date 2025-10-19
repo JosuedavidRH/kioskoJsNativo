@@ -4,6 +4,12 @@ import { RegisterPage } from "./pages/register.js";
 import { HomePage } from "./pages/home.js";
 import { SegundaPage } from "./pages/segunda.js";  // 🆕 Nueva página
 import { temporizador } from "./temporizador.js";
+import { cerrarSesionGlobal } from "./utils/cerrarSesion.js"; // 👈 agrega esta línea arriba
+
+import { temporizador2 } from "./temporizador2.js";
+import { temporizador3 } from "./temporizador3.js";
+
+
 
 const app = document.getElementById("app");
 
@@ -108,21 +114,72 @@ export function navigate(page, data = {}) {
   }
 
   // 🧩 HOME
-  if (page === "home") {
-    app.appendChild(
-      HomePage(currentUser, () => {
+if (page === "home") {
+  app.appendChild(
+    HomePage(currentUser, async () => {
+      try {
+        // 🧭 Leer datos antes de limpiar o cerrar sesión
+        const userId =
+          currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
+
+        // Asegurar que el clickCount real se capture correctamente
+        const storedClickCount = localStorage.getItem("clickCount");
+        const statusActual =
+          storedClickCount !== null
+            ? Number(storedClickCount)
+            : currentUser?.clickCount || 0;
+
+        console.log("🧭 Datos antes de cerrar sesión:", {
+          userId,
+          clickCount: storedClickCount,
+          timeLeftPrincipal: localStorage.getItem("timeLeftPrincipal"),
+          timeLeft1: localStorage.getItem("timeLeft1"),
+        });
+
+        if (!userId) {
+          console.warn("⚠️ cerrarSesionGlobal: userId no encontrado antes del envío");
+        }
+
+        // ✅ Llamar al cierre de sesión global (manual)
+        await cerrarSesionGlobal({
+          auto: false,
+          userId,
+          temporizadorPrincipal:
+            Number(localStorage.getItem("timeLeftPrincipal")) || 0,
+          statusActual, // ✅ clickCount real
+          temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
+          temporizadorFactura2: 0,
+          temporizadorFactura3: 0,
+        });
+
+        console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
+      } catch (err) {
+        console.error("❌ Error cerrando sesión manual:", err);
+      } finally {
+        // 🔹 Detener temporizadores activos
+        if (temporizador?.stopCountdown) temporizador.stopCountdown();
+        if (temporizador2?.stopCountdown) temporizador2.stopCountdown();
+        if (temporizador3?.stopCountdown) temporizador3.stopCountdown();
+
+        // 🔹 Resetear variables locales
         currentUser = null;
         clickCount = 0;
         factura1Terminada = false;
         factura2Terminada = false;
         factura3Terminada = false;
         clicked = false;
+
+        // 🔹 Limpiar localStorage
         localStorage.clear();
-        navigate("login");
-      })
-    );
-    return;
-  }
+
+        // 🔹 Recargar la app para evitar que cualquier listener vuelva a escribir datos
+        window.location.reload();
+      }
+    })
+  );
+  return;
+}
+
 
   // 🧩 SEGUNDA (nueva)
 if (page === "segunda") {
@@ -177,8 +234,19 @@ window.onload = () => {
   }
 };
 
-// 🛑 Cierre automático
+// 🛑 Cierre automático seguro
 window.addEventListener("beforeunload", async () => {
-  if (!currentUser) return;
-  localStorage.clear();
+  try {
+    // Evitar limpiar datos locales durante navegación interna
+    const isInternalNav = performance.getEntriesByType("navigation")[0]?.type === "reload";
+    if (!isInternalNav) return;
+
+    if (!currentUser) return;
+
+    // Solo si realmente se está cerrando sesión o recargando manualmente
+    localStorage.clear();
+  } catch (err) {
+    console.warn("beforeunload error:", err);
+  }
 });
+
