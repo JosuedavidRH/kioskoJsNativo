@@ -140,41 +140,48 @@ if (page === "home") {
           console.warn("⚠️ cerrarSesionGlobal: userId no encontrado antes del envío");
         }
 
-        // ✅ Llamar al cierre de sesión global (manual)
-        await cerrarSesionGlobal({
-          auto: false,
-          userId,
-          temporizadorPrincipal:
-            Number(localStorage.getItem("timeLeftPrincipal")) || 0,
-          statusActual, // ✅ clickCount real
-          temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
-          temporizadorFactura2: Number(localStorage.getItem("timeLeft2")) || 0,
-          temporizadorFactura3: Number(localStorage.getItem("timeLeft3")) || 0,
-        });
+       // ✅ Llamar al cierre de sesión global (manual)
+await cerrarSesionGlobal({
+  auto: false,
+  userId,
+  temporizadorPrincipal:
+    Number(localStorage.getItem("timeLeftPrincipal")) || 0,
+  statusActual, // ✅ clickCount real
+  temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
+  temporizadorFactura2: Number(localStorage.getItem("timeLeft2")) || 0,
+  temporizadorFactura3: Number(localStorage.getItem("timeLeft3")) || 0,
+});
 
-        console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
-      } catch (err) {
-        console.error("❌ Error cerrando sesión manual:", err);
-      } finally {
-        // 🔹 Detener temporizadores activos
-        if (temporizador?.stopCountdown) temporizador.stopCountdown();
-        if (temporizador2?.stopCountdown) temporizador2.stopCountdown();
-        if (temporizador3?.stopCountdown) temporizador3.stopCountdown();
+console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
+} catch (err) {
+  console.error("❌ Error cerrando sesión manual:", err);
+} finally {
+  // 🔹 Detener temporizadores activos
+  if (temporizador?.stopCountdown) temporizador.stopCountdown();
+  if (temporizador2?.stopCountdown) temporizador2.stopCountdown();
+  if (temporizador3?.stopCountdown) temporizador3.stopCountdown();
 
-        // 🔹 Resetear variables locales
-        currentUser = null;
-        clickCount = 0;
-        factura1Terminada = false;
-        factura2Terminada = false;
-        factura3Terminada = false;
-        clicked = false;
+  // 🔹 Resetear variables locales
+  currentUser = null;
+  clickCount = 0;
+  factura1Terminada = false;
+  factura2Terminada = false;
+  factura3Terminada = false;
+  clicked = false;
 
-        // 🔹 Limpiar localStorage
-        localStorage.clear();
+  // 🔹 Limpiar localStorage
+  localStorage.clear();
 
-        // 🔹 Recargar la app para evitar que cualquier listener vuelva a escribir datos
-        window.location.reload();
-      }
+  // 🔍 Verificar si quedaron datos y volver a limpiar si es necesario
+  if (localStorage.length > 0) {
+    console.warn("⚠️ Datos residuales detectados en localStorage. Limpiando nuevamente...");
+    localStorage.clear();
+  }
+
+  // 🔹 Recargar la app para evitar que cualquier listener vuelva a escribir datos
+  window.location.reload();
+}
+
     })
   );
   return;
