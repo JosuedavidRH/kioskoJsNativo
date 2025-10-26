@@ -188,6 +188,19 @@ console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
 return;
 }
 
+ // 🧩 SEGUNDA (nueva)
+if (page === "segunda") {
+  app.appendChild(
+    SegundaPage({
+      user: data.user,
+      codigos: data.codigos,        // ✅ agrega esto
+      indexActual: data.indexActual, // ✅ y esto
+      navigate,
+    })
+  );
+  return;
+ }
+}
 
 // 🔐 Inicialización
 window.onload = () => {
