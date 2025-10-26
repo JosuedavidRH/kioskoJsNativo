@@ -140,7 +140,7 @@ if (page === "home") {
           console.warn("⚠️ cerrarSesionGlobal: userId no encontrado antes del envío");
         }
 
-       // ✅ Llamar al cierre de sesión global (manual)
+    // ✅ Llamar al cierre de sesión global (manual)
 await cerrarSesionGlobal({
   auto: false,
   userId,
@@ -156,10 +156,6 @@ console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
 } catch (err) {
   console.error("❌ Error cerrando sesión manual:", err);
 } finally {
-  // 🔹 Detener temporizadores activos
-  if (temporizador?.stopCountdown) temporizador.stopCountdown();
-  if (temporizador2?.stopCountdown) temporizador2.stopCountdown();
-  if (temporizador3?.stopCountdown) temporizador3.stopCountdown();
 
   // 🔹 Resetear variables locales
   currentUser = null;
@@ -169,38 +165,29 @@ console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
   factura3Terminada = false;
   clicked = false;
 
-  // 🔹 Limpiar localStorage
+  // 🚫 Evitar que otros scripts escriban durante la limpieza
+  window.preventLocalStorageWrites = true;
+
+  // 🔹 Primera limpieza inmediata
   localStorage.clear();
 
-  // 🔍 Verificar si quedaron datos y volver a limpiar si es necesario
-  if (localStorage.length > 0) {
-    console.warn("⚠️ Datos residuales detectados en localStorage. Limpiando nuevamente...");
-    localStorage.clear();
-  }
+  // 🧹 Segunda limpieza + recarga controlada
+  setTimeout(() => {
+    if (localStorage.length > 0) {
+      console.warn("⚠️ Datos residuales detectados. Limpiando nuevamente...");
+      localStorage.clear();
+    }
 
-  // 🔹 Recargar la app para evitar que cualquier listener vuelva a escribir datos
-  window.location.reload();
+    // ✅ Recargar solo después de asegurar la limpieza total
+    window.location.reload();
+  }, 200); // 200 ms de margen para terminar operaciones pendientes
 }
 
-    })
-  );
-  return;
+})
+);
+return;
 }
 
-
-  // 🧩 SEGUNDA (nueva)
-if (page === "segunda") {
-  app.appendChild(
-    SegundaPage({
-      user: data.user,
-      codigos: data.codigos,        // ✅ agrega esto
-      indexActual: data.indexActual, // ✅ y esto
-      navigate,
-    })
-  );
-  return;
- }
-}
 
 // 🔐 Inicialización
 window.onload = () => {
