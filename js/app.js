@@ -148,8 +148,8 @@ if (page === "home") {
             Number(localStorage.getItem("timeLeftPrincipal")) || 0,
           statusActual, // ✅ clickCount real
           temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
-          temporizadorFactura2: 0,
-          temporizadorFactura3: 0,
+          temporizadorFactura2: Number(localStorage.getItem("timeLeft2")) || 0,
+          temporizadorFactura3: Number(localStorage.getItem("timeLeft3")) || 0,
         });
 
         console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
@@ -263,8 +263,8 @@ window.addEventListener("beforeunload", async (event) => {
       temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
       statusActual,
       temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
-      temporizadorFactura2: 0,
-      temporizadorFactura3: 0,
+      temporizadorFactura2: Number(localStorage.getItem("timeLeft2")) || 0,
+      temporizadorFactura3: Number(localStorage.getItem("timeLeft3")) || 0,
     });
 
     console.log("✅ Sesión cerrada automáticamente y datos enviados al backend");

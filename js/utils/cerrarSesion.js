@@ -25,17 +25,17 @@ export function cerrarSesionGlobal({
   const tempFactura1 =
     temporizadorFactura1 !== undefined
       ? temporizadorFactura1
-      : Number(localStorage.getItem("timeLeftFactura1")) || 0;
+      : Number(localStorage.getItem("timeLeft1")) || 0;
 
   const tempFactura2 =
     temporizadorFactura2 !== undefined
       ? temporizadorFactura2
-      : Number(localStorage.getItem("timeLeftFactura2")) || 0;
+      : Number(localStorage.getItem("timeLeft2")) || 0;
 
   const tempFactura3 =
     temporizadorFactura3 !== undefined
       ? temporizadorFactura3
-      : Number(localStorage.getItem("timeLeftFactura3")) || 0;
+      : Number(localStorage.getItem("timeLeft3")) || 0;
 
   const body = JSON.stringify({
     userId,
