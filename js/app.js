@@ -234,19 +234,55 @@ window.onload = () => {
   }
 };
 
-// 🛑 Cierre automático seguro
-window.addEventListener("beforeunload", async () => {
+// 🛑🔁 Cierre automático seguro
+window.addEventListener("beforeunload", async (event) => {
   try {
-    // Evitar limpiar datos locales durante navegación interna
-    const isInternalNav = performance.getEntriesByType("navigation")[0]?.type === "reload";
-    if (!isInternalNav) return;
-
     if (!currentUser) return;
 
-    // Solo si realmente se está cerrando sesión o recargando manualmente
-    localStorage.clear();
+    // 🧭 Capturar datos igual que en cierre manual
+    const userId =
+      currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
+
+    const storedClickCount = localStorage.getItem("clickCount");
+    const statusActual =
+      storedClickCount !== null
+        ? Number(storedClickCount)
+        : currentUser?.clickCount || 0;
+
+    console.log("⚙️ Cierre automático detectado (beforeunload):", {
+      userId,
+      clickCount: storedClickCount,
+      timeLeftPrincipal: localStorage.getItem("timeLeftPrincipal"),
+      timeLeft1: localStorage.getItem("timeLeft1"),
+    });
+
+    // 🛑 Llamar cierre global con auto:true (usa sendBeacon)
+     cerrarSesionGlobal({
+      auto: true,
+      userId,
+      temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
+      statusActual,
+      temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
+      temporizadorFactura2: 0,
+      temporizadorFactura3: 0,
+    });
+
+    console.log("✅ Sesión cerrada automáticamente y datos enviados al backend");
   } catch (err) {
-    console.warn("beforeunload error:", err);
+    console.error("❌ Error en cierre automático:", err);
+  } finally {
+   
+    // 🔹 Resetear variables locales
+    currentUser = null;
+    clickCount = 0;
+    factura1Terminada = false;
+    factura2Terminada = false;
+    factura3Terminada = false;
+    clicked = false;
+
+    // 🔹 Limpiar almacenamiento
+    localStorage.clear();
+
+    // 🔹 No recargamos aquí (pestaña se está cerrando)
   }
 });
-
