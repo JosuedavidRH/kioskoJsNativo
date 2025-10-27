@@ -1,4 +1,4 @@
-// js/pages/segunda.js
+// js/pages/segunda.js  analiza  el codigo de produccion pero no modifiques nada
 
 // ✅ Generar 3 códigos aleatorios de 6 dígitos
 function generarTresCodigos() {

@@ -1,11 +1,7 @@
-// js/components/ContenedoresPaginaPrincipal.js
-
+// js/components/ContenedoresPaginaPrincipal.js  analiza  el codigo de produccion pero no modifiques nada
 
 
 import { temporizadorfactura1 as TemporizadorFactura1 } from "../temporizadorfactura1.js";
-
-import { temporizadorfactura2 as TemporizadorFactura2 } from "../temporizadorfactura2.js";
-import { temporizadorfactura3 as TemporizadorFactura3 } from "../temporizadorfactura3.js";
 
 export function ContenedoresPaginaPrincipal({
   clickCount,
@@ -20,116 +16,87 @@ export function ContenedoresPaginaPrincipal({
 }) {
   const fragment = document.createDocumentFragment();
 
-  // ⏰ Mensaje ESPERA TUS FACTURAS
+  // 🔹 CONTENEDOR PRINCIPAL
+  const contenedorCentral = document.createElement("div");
+  contenedorCentral.style.display = "flex";
+  contenedorCentral.style.flexDirection = "column";
+  contenedorCentral.style.alignItems = "center";
+  contenedorCentral.style.justifyContent = "center";
+  contenedorCentral.style.gap = "20px";
+  contenedorCentral.style.width = "100%";
+  contenedorCentral.style.minHeight = "100vh";
+  contenedorCentral.style.background = "transparent";
+  contenedorCentral.style.transform = "translateY(-150px)"; // 🔹 sube el bloque
+
   if (clickCount >= 1) {
-    const header = document.createElement("header");
-    header.style.display = "flex";
-    header.style.justifyContent = "center";
-    header.style.transform = "translateY(-15px)";
-    header.style.marginLeft = "160px";
+   
+    
 
-    const div = document.createElement("div");
-    div.style.backgroundColor = "transparent";
-    div.style.width = "170px";
-    div.style.height = "60px";
-    div.style.borderRadius = "12px";
-    div.style.display = "flex";
-    div.style.flexDirection = "column";
-    div.style.justifyContent = "center";
-    div.style.alignItems = "center";
-
-    const span = document.createElement("span");
-    span.style.fontSize = "0.7rem";
-    span.style.color = "white";
-    span.textContent = "ESPERA TUS FACTURAS";
-
-    div.appendChild(span);
-    header.appendChild(div);
-    fragment.appendChild(header);
-  }
-
-  // 🧾 Bloque facturas pendientes
-  if (clickCount >= 1) {
-    const header = document.createElement("header");
-    header.style.display = "flex";
-    header.style.justifyContent = "center";
-    header.style.transform = "translateY(-50px)";
-    header.style.marginLeft = "-210px";
-
-    const div = document.createElement("div");
-    div.style.backgroundColor = "rgba(0,0,0,0.2)";
-    div.style.width = "170px";
-    div.style.height = "200px";
-    div.style.borderRadius = "12px";
-    div.style.display = "flex";
-    div.style.flexDirection = "column";
-    div.style.justifyContent = "center";
-    div.style.alignItems = "center";
-
-    const img = document.createElement("img");
-    img.src = "./public/compras.png";
-    img.alt = "Compras";
-    img.style.width = "80px";
-    img.style.height = "80px";
-    img.style.marginBottom = "5px";
-
-    const span = document.createElement("span");
-    span.style.fontSize = "0.8rem";
-    span.style.color = "white";
-    span.innerHTML = `HAY <span style="font-size:2rem;font-weight:bold">${clickCount}</span> FACTURAS por valor de ;`;
-
-    div.appendChild(img);
-    div.appendChild(span);
-    header.appendChild(div);
-    fragment.appendChild(header);
-  }
-
-  // ✅ Factura 1
-  if (clickCount >= 1) {
-    const header = document.createElement("header");
-    header.style.display = "flex";
-    header.style.justifyContent = "center";
-    header.style.transform = "translateY(-210px)";
-    header.style.marginLeft = "170px";
-
-    const box = document.createElement("div");
-    box.style.backgroundColor = "rgba(0,0,0,0.2)";
-    box.style.width = "200px";
-    box.style.height = "120px";
-    box.style.borderRadius = "12px";
-    box.style.display = "flex";
-    box.style.justifyContent = "center";
-    box.style.alignItems = "center";
+    // 🧾 Factura 1
+    const bloqueFactura1 = document.createElement("div");
+    bloqueFactura1.style.backgroundColor = "rgba(0,0,0,0.2)";
+    bloqueFactura1.style.width = "300px";
+    bloqueFactura1.style.height = "300px";
+    bloqueFactura1.style.borderRadius = "12px";
+    bloqueFactura1.style.display = "flex";
+    bloqueFactura1.style.flexDirection = "column";
+    bloqueFactura1.style.justifyContent = "center";
+    bloqueFactura1.style.alignItems = "center";
+    bloqueFactura1.style.position = "relative";
+    bloqueFactura1.style.gap = "10px"; // espacio entre elementos
 
     if (factura1Terminada) {
+      // ✅ Estado: factura lista
       const div = document.createElement("div");
       div.style.textAlign = "center";
+      div.style.display = "flex";
+      div.style.flexDirection = "column";
+      div.style.alignItems = "center";
+      div.style.gap = "10px";
+
+      // 🖼️ Imagen superior cuando la factura está lista
+      const imgFacturaLista = document.createElement("img");
+      imgFacturaLista.src = "./public/factura.gif";
+      imgFacturaLista.alt = "Factura lista";
+      imgFacturaLista.style.width = "120px";
+      imgFacturaLista.style.height = "120px";
+      imgFacturaLista.style.marginBottom = "5px";
 
       const text = document.createElement("div");
-      text.style.fontSize = "0.9rem";
+      text.style.fontSize = "1rem";
       text.style.marginBottom = "8px";
       text.style.fontWeight = "bold";
-      text.textContent = "lista tu factura 1 valor;";
+      text.textContent = "YA ESTA lista tu factura ";
 
       const btn = document.createElement("button");
-      btn.textContent = "pagar";
+      btn.textContent = "VER";
       btn.style.backgroundColor = "green";
       btn.style.color = "white";
       btn.style.border = "none";
       btn.style.borderRadius = "10px";
       btn.style.padding = "10px 16px";
       btn.style.cursor = "pointer";
-      btn.style.fontSize = "1.3rem";
+      btn.style.fontSize = "1.2rem";
 
+      div.appendChild(imgFacturaLista); // 🔹 imagen agregada aquí
       div.appendChild(text);
       div.appendChild(btn);
-      box.appendChild(div);
+      bloqueFactura1.appendChild(div);
     } else {
+      // ⏳ Estado: esperando factura
+      const contenedorEspera = document.createElement("div");
+      contenedorEspera.style.display = "flex";
+      contenedorEspera.style.flexDirection = "column";
+      contenedorEspera.style.alignItems = "center";
+      contenedorEspera.style.justifyContent = "center";
+      contenedorEspera.style.gap = "8px";
+
+      // 🔸 Botón circular amarillo con temporizador
       const btn = document.createElement("button");
-      btn.style.width = "70px";
-      btn.style.height = "70px";
+      btn.style.width = "160px";
+      btn.style.height = "160px";
       btn.style.borderRadius = "50%";
-      btn.style.fontSize = "0.6rem";
+      btn.style.fontSize = "0.7rem";
       btn.style.backgroundColor = "#ff0";
       btn.style.color = "#000";
       btn.style.border = "none";
@@ -139,155 +106,36 @@ export function ContenedoresPaginaPrincipal({
       btn.style.alignItems = "center";
       btn.style.textAlign = "center";
 
-      btn.addEventListener("click", () => setClicked(!clicked));
+      btn.addEventListener("click", () => {
+        setClicked(!clicked);
+      });
 
-      // Inyectamos el temporizador
-      btn.appendChild(
-        TemporizadorFactura1(() => setFactura1Terminada(true))
-      );
+      // Renderiza temporizador dentro del botón
+      btn.appendChild(TemporizadorFactura1(() => setFactura1Terminada(true)));
 
-      box.appendChild(btn);
+      // 🔹 Texto debajo del círculo
+      const textoEspera = document.createElement("span");
+      textoEspera.textContent = "ESPERA TU FACTURA";
+      textoEspera.style.color = "white";
+      textoEspera.style.fontSize = "0.8rem";
+      textoEspera.style.fontWeight = "500";
+      textoEspera.style.textAlign = "center";
+
+      contenedorEspera.appendChild(btn);
+      contenedorEspera.appendChild(textoEspera);
+      bloqueFactura1.appendChild(contenedorEspera);
     }
 
-    header.appendChild(box);
-    fragment.appendChild(header);
+    contenedorCentral.appendChild(bloqueFactura1);
   }
 
-  // ✅ Factura 2
-  if (clickCount >= 2) {
-    const header = document.createElement("header");
-    header.style.display = "flex";
-    header.style.justifyContent = "center";
-    header.style.transform = "translateY(-200px)";
-    header.style.marginLeft = "170px";
-
-    const box = document.createElement("div");
-    box.style.backgroundColor = "rgba(0,0,0,0.2)";
-    box.style.width = "200px";
-    box.style.height = "120px";
-    box.style.borderRadius = "12px";
-    box.style.display = "flex";
-    box.style.justifyContent = "center";
-    box.style.alignItems = "center";
-
-    if (factura2Terminada) {
-      const div = document.createElement("div");
-      div.style.textAlign = "center";
-
-      const text = document.createElement("div");
-      text.style.fontSize = "0.9rem";
-      text.style.marginBottom = "8px";
-      text.style.fontWeight = "bold";
-      text.textContent = "lista tu factura 2 valor;";
-
-      const btn = document.createElement("button");
-      btn.textContent = "pagar";
-      btn.style.backgroundColor = "green";
-      btn.style.color = "white";
-      btn.style.border = "none";
-      btn.style.borderRadius = "10px";
-      btn.style.padding = "10px 16px";
-      btn.style.cursor = "pointer";
-      btn.style.fontSize = "1.3rem";
-
-      div.appendChild(text);
-      div.appendChild(btn);
-      box.appendChild(div);
-    } else {
-      const btn = document.createElement("button");
-      btn.style.width = "70px";
-      btn.style.height = "70px";
-      btn.style.borderRadius = "50%";
-      btn.style.fontSize = "0.6rem";
-      btn.style.backgroundColor = "#ff0";
-      btn.style.color = "#000";
-      btn.style.border = "none";
-      btn.style.cursor = "pointer";
-      btn.style.display = "flex";
-      btn.style.justifyContent = "center";
-      btn.style.alignItems = "center";
-      btn.style.textAlign = "center";
-
-      btn.addEventListener("click", () => setClicked(!clicked));
-
-      btn.appendChild(
-        TemporizadorFactura2(() => setFactura2Terminada(true))
-      );
-
-      box.appendChild(btn);
-    }
-
-    header.appendChild(box);
-    fragment.appendChild(header);
-  }
-
-  // ✅ Factura 3
-  if (clickCount >= 3) {
-    const header = document.createElement("header");
-    header.style.display = "flex";
-    header.style.justifyContent = "center";
-    header.style.transform = "translateY(-190px)";
-    header.style.marginLeft = "170px";
-
-    const box = document.createElement("div");
-    box.style.backgroundColor = "rgba(0,0,0,0.2)";
-    box.style.width = "200px";
-    box.style.height = "120px";
-    box.style.borderRadius = "12px";
-    box.style.display = "flex";
-    box.style.justifyContent = "center";
-    box.style.alignItems = "center";
-
-    if (factura3Terminada) {
-      const div = document.createElement("div");
-      div.style.textAlign = "center";
-
-      const text = document.createElement("div");
-      text.style.fontSize = "0.9rem";
-      text.style.marginBottom = "8px";
-      text.style.fontWeight = "bold";
-      text.textContent = "lista tu factura 3 valor;";
-
-      const btn = document.createElement("button");
-      btn.textContent = "pagar";
-      btn.style.backgroundColor = "green";
-      btn.style.color = "white";
-      btn.style.border = "none";
-      btn.style.borderRadius = "10px";
-      btn.style.padding = "10px 16px";
-      btn.style.cursor = "pointer";
-      btn.style.fontSize = "1.3rem";
-
-      div.appendChild(text);
-      div.appendChild(btn);
-      box.appendChild(div);
-    } else {
-      const btn = document.createElement("button");
-      btn.style.width = "70px";
-      btn.style.height = "70px";
-      btn.style.borderRadius = "50%";
-      btn.style.fontSize = "0.6rem";
-      btn.style.backgroundColor = "#ff0";
-      btn.style.color = "#000";
-      btn.style.border = "none";
-      btn.style.cursor = "pointer";
-      btn.style.display = "flex";
-      btn.style.justifyContent = "center";
-      btn.style.alignItems = "center";
-      btn.style.textAlign = "center";
-
-      btn.addEventListener("click", () => setClicked(!clicked));
-
-      btn.appendChild(
-        TemporizadorFactura3(() => setFactura3Terminada(true))
-      );
-
-      box.appendChild(btn);
-    }
-
-    header.appendChild(box);
-    fragment.appendChild(header);
-  }
-
+  fragment.appendChild(contenedorCentral);
   return fragment;
 }
+
+
+
+  
+
+   
+   

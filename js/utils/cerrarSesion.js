@@ -1,8 +1,6 @@
-// js/utils/cerrarSesion.js
+// utils/cerrarSesion.js  analiza  el codigo de produccion pero no modifiques nada
 
-
-
-export function cerrarSesionGlobal({
+export async function cerrarSesionGlobal({
   auto = false,
   temporizadorPrincipal,
   statusActual,
@@ -22,20 +20,22 @@ export function cerrarSesionGlobal({
       ? temporizadorPrincipal
       : Number.parseInt(localStorage.getItem("timeLeftPrincipal"), 10) || 0;
 
-  const tempFactura1 =
-    temporizadorFactura1 !== undefined
-      ? temporizadorFactura1
-      : Number(localStorage.getItem("timeLeft1")) || 0;
+ const tempFactura1 =
+  temporizadorFactura1 !== undefined
+    ? temporizadorFactura1
+    : Number(localStorage.getItem("timeLeftFactura1")) ||
+      Number(localStorage.getItem("timeLeft1")) || 0;
+
 
   const tempFactura2 =
     temporizadorFactura2 !== undefined
       ? temporizadorFactura2
-      : Number(localStorage.getItem("timeLeft2")) || 0;
+      : Number(localStorage.getItem("timeLeftFactura2")) || 0;
 
   const tempFactura3 =
     temporizadorFactura3 !== undefined
       ? temporizadorFactura3
-      : Number(localStorage.getItem("timeLeft3")) || 0;
+      : Number(localStorage.getItem("timeLeftFactura3")) || 0;
 
   const body = JSON.stringify({
     userId,
@@ -46,6 +46,11 @@ export function cerrarSesionGlobal({
   });
 
   try {
+    // 🔹 Detener todos los temporizadores antes de enviar
+    if (window.temporizador?.stopCountdown) window.temporizador.stopCountdown();
+    if (window.temporizador2?.stopCountdown) window.temporizador2.stopCountdown();
+    if (window.temporizador3?.stopCountdown) window.temporizador3.stopCountdown();
+
     if (auto && navigator.sendBeacon) {
       navigator.sendBeacon(
         "https://backend-1uwd.onrender.com/api/realTime/cerrarSesion",
@@ -64,7 +69,7 @@ export function cerrarSesionGlobal({
       return;
     }
 
-    fetch("https://backend-1uwd.onrender.com/api/realTime/cerrarSesion", {
+    await fetch("https://backend-1uwd.onrender.com/api/realTime/cerrarSesion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
@@ -80,9 +85,8 @@ export function cerrarSesionGlobal({
   } catch (e) {
     console.error("❌ Error cerrando sesión:", e);
   } finally {
-    if (!auto) {
-      localStorage.clear();
-      console.log("🧹 LocalStorage limpiado (manual)");
-    }
+    // 🔹 Limpiar almacenamiento solo cuando estamos seguros de que no habrá reescrituras
+    localStorage.clear();
+    console.log("🧹 LocalStorage limpiado (manual)");
   }
 }

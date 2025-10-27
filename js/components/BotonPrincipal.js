@@ -1,4 +1,5 @@
-// 📁 js/components/BotonPrincipal.js
+// 📁 js/components/BotonPrincipal.js analiza  el codigo de produccion pero no modifiques nada
+
 import { guardarStatusActual } from "../utils/guardarStatusActual.js";
 import { temporizador } from "../temporizador.js";
 import { navigate } from "../app.js";
@@ -90,44 +91,7 @@ export function BotonPrincipal({
             });
           }
 
-          // 🔹 Verificar e inicializar temporizador correctamente
-          let timeLeftLocal = parseInt(localStorage.getItem("timeLeftPrincipal"), 10);
-
-          if (!Number.isFinite(timeLeftLocal) || timeLeftLocal <= 0) {
-            timeLeftLocal = initialTime > 0 ? initialTime : 43200;
-            localStorage.setItem("timeLeftPrincipal", timeLeftLocal.toString());
-            console.log("🕒 Temporizador inicializado en localStorage:", timeLeftLocal);
-          } else {
-            console.log("🕒 Temporizador existente detectado:", timeLeftLocal);
-          }
-
-          // 🔹 Guardar temporizador en backend
-          await fetch("https://backend-1uwd.onrender.com/api/realTime/temporizador", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId: apartmentNumber,
-              temporizadorPrincipal: timeLeftLocal,
-            }),
-          });
-
-         
-          // ✅ Iniciar temporizador global (una sola instancia)
-temporizador.init({
-  apartmentNumber,
-  initialTime: timeLeftLocal,
-  statusActual: clickCount,
-});
-
-// 🔹 Guardar en localStorage y activar el conteo en pantalla
-localStorage.setItem("timeLeftPrincipal", timeLeftLocal.toString());
-temporizador.startCountdown(timeLeftLocal);
-
-// 🔹 Refrescar contador en la vista principal si está montado
-const event = new CustomEvent("temporizadorIniciado", { detail: { tiempo: timeLeftLocal } });
-window.dispatchEvent(event);
-
-console.log("✅ Temporizador principal INICIADO con", timeLeftLocal, "segundos restantes");
+          
 
           // 🔹 Actualizar estado y navegar
           clickCount = (clickCount + 1) % 4;
