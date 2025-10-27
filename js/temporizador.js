@@ -1,4 +1,5 @@
-// js/temporizador.js
+// js/temporizador.js  analiza  el codigo de produccion pero no modifiques nada
+
 import { cerrarSesionGlobal } from "./utils/cerrarSesion.js";
 
 

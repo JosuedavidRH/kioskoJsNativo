@@ -1,14 +1,13 @@
-// js/temporizador1.js
+// js/temporizador1.js   analiza  el codigo de produccion pero no modifiques nada
 
 class Temporizador1 extends EventTarget {
-  constructor(initialTime = 30) {
+  constructor(initialTime = 1200) {
     super();
     this.timeLeft = Number(localStorage.getItem("timeLeft1")) || initialTime;
     this.interval = null;
     this.isRunning = false;
   }
 
-  // 🔹 Iniciar el temporizador
   start() {
     if (this.isRunning) return;
     this.isRunning = true;
@@ -24,36 +23,43 @@ class Temporizador1 extends EventTarget {
     }, 1000);
   }
 
-  // 🔹 Detener el temporizador
   stop() {
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
     }
     this.isRunning = false;
+    this.dispatchUpdate();
   }
 
-  // 🔹 Reiniciar con un nuevo tiempo
-  reset(newTime = 30) {
+  reset(newTime = 1200) {
     this.stop();
     this.timeLeft = newTime;
     localStorage.setItem("timeLeft1", newTime);
     this.dispatchUpdate();
   }
 
-  // 🔹 Formatear mm:ss
+  // ⚡ Nuevo método
+  setTimeLeft(value) {
+    this.timeLeft = value;
+    localStorage.setItem("timeLeft1", value);
+    this.dispatchUpdate();
+
+    if (this.timeLeft > 0 && !this.isRunning) {
+      this.start();
+    }
+  }
+
   formatTime(seconds = this.timeLeft) {
     const m = String(Math.floor(seconds / 60)).padStart(2, "0");
     const s = String(seconds % 60).padStart(2, "0");
     return `${m}:${s}`;
   }
 
-  // 🔹 Escuchar cambios desde otros módulos
   onUpdate(callback) {
-    this.addEventListener("update", (e) => callback(e.detail));
+    this.addEventListener("update", (e) => callback(e.detail.timeLeft));
   }
 
-  // 🔹 Emitir actualización
   dispatchUpdate() {
     this.dispatchEvent(
       new CustomEvent("update", {
@@ -63,5 +69,4 @@ class Temporizador1 extends EventTarget {
   }
 }
 
-// ✅ Exportar una sola instancia global con el mismo nombre
 export const temporizador1 = new Temporizador1();

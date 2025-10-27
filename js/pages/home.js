@@ -1,11 +1,8 @@
-
-// js/pages/home.js
+// js/pages/home.js   analiza  el codigo de produccion pero no modifiques nada
 
 import { temporizador } from "../temporizador.js";
 import { temporizador2 } from "../temporizador2.js";
 import { temporizador3 } from "../temporizador3.js";
-
-
 
 import { ContenedoresPaginaPrincipal } from "../components/ContenedoresPaginaPrincipal.js";
 import { BotonPrincipal } from "../components/BotonPrincipal.js";
@@ -30,6 +27,7 @@ export function HomePage(user, onLogout) {
 
   // 🔹 Leer estados desde localStorage para reflejar la vista real
   let clickCount = Number(localStorage.getItem("clickCount") || 0);
+  console.log("🏠 HomePage renderizando con clickCount:", clickCount);
   let factura1Terminada = localStorage.getItem("factura1Terminada") === "true";
   let factura2Terminada = localStorage.getItem("factura2Terminada") === "true";
   let factura3Terminada = localStorage.getItem("factura3Terminada") === "true";
@@ -107,7 +105,7 @@ export function HomePage(user, onLogout) {
   footer.style.display = "flex";
   footer.style.flexDirection = "column";
   footer.style.alignItems = "center";
-  footer.style.marginBottom = "40px";  
+  footer.style.marginBottom = "10px";  
 
   const box = document.createElement("div");
   box.style.backgroundColor = "transparent";
@@ -117,39 +115,47 @@ export function HomePage(user, onLogout) {
   box.style.display = "flex";
   box.style.justifyContent = "center";
   box.style.alignItems = "center";
-  box.style.marginBottom = "20px";  
+  box.style.marginBottom = "0px"; 
+  box.style.transform = "translateY(-300px)";
 
   // --- BotonPrincipal ---
-  const botonPrincipal = BotonPrincipal({
-    clickCount,
-    setClickCount: (v) => { 
-      localStorage.setItem("clickCount", v); 
-      clickCount = v; 
-      render(); 
-    },
-    isProcessing: user.isProcessing || false,
-    setIsProcessing: (v) => { user.isProcessing = v; },
-    apartmentNumber: user.apartmentNumber,
-    // 🔹 Inicia el temporizador al primer clic
-    startCountdown: (t = 43200) => temporizador.startCountdown(t),
-  });
-  box.appendChild(botonPrincipal);
-
-  // --- Botón cerrar sesión ---
-  const btnLogout = document.createElement("button");
-  btnLogout.textContent = "Cerrar 🔒";
-  btnLogout.style.marginTop = "30px"; 
-  btnLogout.style.padding = "6px";
-  btnLogout.style.fontSize = "0.9rem";
-  btnLogout.style.borderRadius = "5px";
-  btnLogout.style.backgroundColor = "#f44336";
-  btnLogout.style.color = "white";
-  btnLogout.style.border = "none";
-  btnLogout.style.cursor = "pointer";
-  btnLogout.addEventListener("click", onLogout);
+  if (clickCount !== 1) {
+    const botonPrincipal = BotonPrincipal({
+      clickCount,
+      setClickCount: (v) => { 
+        localStorage.setItem("clickCount", v); 
+        clickCount = v; 
+        render(); 
+      },
+      isProcessing: user.isProcessing || false,
+      setIsProcessing: (v) => { user.isProcessing = v; },
+      apartmentNumber: user.apartmentNumber,
+      // 🔹 Inicia el temporizador al primer clic
+      startCountdown: (t = 43200) => temporizador.startCountdown(t),
+    });
+    box.appendChild(botonPrincipal);
+  }
 
   footer.appendChild(box);
-  footer.appendChild(btnLogout);
+
+  // --- Botón cerrar sesión ---
+  if (clickCount === 1) {
+    const btnLogout = document.createElement("button");
+    btnLogout.textContent = "Cerrar 🔒";
+
+    btnLogout.style.padding = "6px";
+    btnLogout.style.fontSize = "0.9rem";
+    btnLogout.style.borderRadius = "5px";
+    btnLogout.style.backgroundColor = "#f44336";
+    btnLogout.style.color = "white";
+    btnLogout.style.border = "none";
+    btnLogout.style.cursor = "pointer";
+    btnLogout.addEventListener("click", onLogout);
+    btnLogout.style.marginTop = "-240px";
+
+    footer.appendChild(btnLogout);
+  }
+
   wrapper.appendChild(footer);
 
   // --- Función para re-renderizar la página con los estados actualizados ---
@@ -187,8 +193,64 @@ export function HomePage(user, onLogout) {
         render(); 
       },
     });
+
     wrapper.appendChild(contenedoresActualizados);
-    wrapper.appendChild(footer);
+
+    const footerActualizado = document.createElement("footer");
+    footerActualizado.style.display = "flex";
+    footerActualizado.style.flexDirection = "column";
+    footerActualizado.style.alignItems = "center";
+    footerActualizado.style.marginBottom = "10px";
+
+    const boxActualizado = document.createElement("div");
+    boxActualizado.style.backgroundColor = "transparent";
+    boxActualizado.style.width = "250px";
+    boxActualizado.style.height = "70px";
+    boxActualizado.style.borderRadius = "100px";
+    boxActualizado.style.display = "flex";
+    boxActualizado.style.justifyContent = "center";
+    boxActualizado.style.alignItems = "center";
+    boxActualizado.style.marginBottom = "0px";
+    boxActualizado.style.transform = "translateY(-300px)";
+
+    // --- Botón principal nuevamente ---
+    if (clickCount !== 1) {
+      const botonPrincipal = BotonPrincipal({
+        clickCount,
+        setClickCount: (v) => { 
+          localStorage.setItem("clickCount", v); 
+          clickCount = v; 
+          render(); 
+        },
+        isProcessing: user.isProcessing || false,
+        setIsProcessing: (v) => { user.isProcessing = v; },
+        apartmentNumber: user.apartmentNumber,
+        startCountdown: (t = 43200) => temporizador.startCountdown(t),
+      });
+      boxActualizado.appendChild(botonPrincipal);
+    }
+
+    footerActualizado.appendChild(boxActualizado);
+
+    // --- Mostrar botón cerrar sesión solo si clickCount === 1 ---
+    if (clickCount === 1) {
+      const btnLogout = document.createElement("button");
+      btnLogout.textContent = "Cerrar 🔒";
+
+      btnLogout.style.padding = "6px";
+      btnLogout.style.fontSize = "0.9rem";
+      btnLogout.style.borderRadius = "5px";
+      btnLogout.style.backgroundColor = "#f44336";
+      btnLogout.style.color = "white";
+      btnLogout.style.border = "none";
+      btnLogout.style.cursor = "pointer";
+      btnLogout.addEventListener("click", onLogout);
+      btnLogout.style.marginTop = "-240px";
+
+      footerActualizado.appendChild(btnLogout);
+    }
+
+    wrapper.appendChild(footerActualizado);
   }
 
   return wrapper;
