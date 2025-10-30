@@ -139,7 +139,7 @@ export const restaurarDatos = async ({
     if (onTimeLeftFactura1Change) {
   if (statusNum === 0 || temporizadorFactura1 == null) {
     // 🔹 Inicializar factura 1
-    const initialTime = 1200;
+    const initialTime = 30;
     onTimeLeftFactura1Change(initialTime);
     localStorage.setItem("timeLeft1", String(initialTime));
 

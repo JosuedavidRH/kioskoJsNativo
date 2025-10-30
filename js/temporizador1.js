@@ -1,7 +1,7 @@
 // js/temporizador1.js   analiza  el codigo de produccion pero no modifiques nada
 
 class Temporizador1 extends EventTarget {
-  constructor(initialTime = 1200) {
+  constructor(initialTime = 30) {
     super();
     this.timeLeft = Number(localStorage.getItem("timeLeft1")) || initialTime;
     this.interval = null;
@@ -32,7 +32,7 @@ class Temporizador1 extends EventTarget {
     this.dispatchUpdate();
   }
 
-  reset(newTime = 1200) {
+  reset(newTime = 30) {
     this.stop();
     this.timeLeft = newTime;
     localStorage.setItem("timeLeft1", newTime);
