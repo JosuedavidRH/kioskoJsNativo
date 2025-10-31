@@ -46,11 +46,20 @@ bloqueFactura1.style.position = "relative";
 bloqueFactura1.style.gap = "10px"; // espacio entre elementos
 
 if (factura1Terminada) {
-  // 🧹 Detener y limpiar temporizador1 si ya está terminada la factura
-  import("../temporizador1.js").then(({ temporizador1 }) => {
-    temporizador1.stop();
-    localStorage.removeItem("timeLeft1");
-  });
+  // ✅ Evita múltiples imports y detenciones
+  if (!window.temporizador1Detenido) {
+    import("../temporizador1.js").then(({ temporizador1 }) => {
+      try {
+        temporizador1.stop();
+        localStorage.removeItem("timeLeft1");
+        console.log("🧾 Temporizador 1 detenido y limpiado");
+      } catch (err) {
+        console.warn("No se pudo detener temporizador1:", err);
+      }
+    });
+    window.temporizador1Detenido = true; // 🔸 Marca que ya se detuvo una vez
+  }
+
 
   // ✅ Estado: factura lista
   const div = document.createElement("div");
