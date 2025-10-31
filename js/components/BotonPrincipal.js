@@ -75,7 +75,7 @@ export function BotonPrincipal({
           navigate("segunda", { user: apartmentNumber, codigos: codigosBD, indexActual: indexToShow });
         } else {
           // 🔹 Generar nuevos códigos
-          const nuevosCodigos = Array.from({ length: 3 }, () =>
+          const nuevosCodigos = Array.from({ length: 1 }, () =>
             Math.floor(100000 + Math.random() * 900000).toString()
           );
 

@@ -57,11 +57,14 @@ export function HomePage(user, onLogout) {
     // Actualización inicial
     updateTimer();
 
-    // 🔹 Escuchar los eventos del temporizador sin duplicar intervalos
-    temporizador.addEventListener("update", (e) => {
-      const { timeLeft } = e.detail;
-      timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(timeLeft)}`;
-    });
+    // ✅ Evitar listeners duplicados
+    if (!window.temporizadorListenerActivo) {
+      temporizador.addEventListener("update", (e) => {
+        const { timeLeft } = e.detail;
+        timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(timeLeft)}`;
+      });
+      window.temporizadorListenerActivo = true;
+    }
 
     // 🔁 Si hay un tiempo guardado y el temporizador no está corriendo, reanúdalo
     const savedTime = Number(localStorage.getItem("timeLeftPrincipal") || 0);

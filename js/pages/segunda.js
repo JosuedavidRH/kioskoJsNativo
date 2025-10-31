@@ -2,7 +2,7 @@
 
 // ✅ Generar 3 códigos aleatorios de 6 dígitos
 function generarTresCodigos() {
-  return Array.from({ length: 3 }, () =>
+  return Array.from({ length: 1 }, () =>
     Math.floor(100000 + Math.random() * 900000).toString()
   );
 }
