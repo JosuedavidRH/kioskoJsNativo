@@ -1,5 +1,5 @@
 
-//guardarStatusActual.js
+//guardarStatusActual.js analiza  el codigo de produccion pero no modifiques nada
 
 
 export const guardarStatusActual = async (nuevoEstado, aptoParam) => {
