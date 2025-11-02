@@ -15,6 +15,9 @@ import { temporizador1 } from "./temporizador1.js";// 👈 APENAS SE INCLUYO
 import { temporizador2 } from "./temporizador2.js";
 import { temporizador3 } from "./temporizador3.js";
 
+import { guardarStatusActual0 } from "./utils/guardarStatusActual0.js";
+
+
 
 
 const app = document.getElementById("app");
@@ -298,7 +301,33 @@ window.addEventListener("beforeunload", async (event) => {
       timeLeft1: localStorage.getItem("timeLeft1"),
     });
 
-     cerrarSesionGlobal({
+    // 🟣 Nueva integración → Verificar backend antes del cierre
+    try {
+      console.log("⏱️ Verificando backend antes de regresar a home...");
+      const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${userId}`);
+      const data = await resp.json();
+
+      // 🔸 Caso 1: sin códigos → HOME clickCount = 1
+      if (!data.success || !data.data || data.data.length === 0) {
+        console.log("⚪ No hay códigos activos → HOME clickCount = 1");
+        localStorage.setItem("clickCount", "1");
+      }
+
+      // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 + guardarStatusActual0
+      const codigo = data.data?.[0]?.codigo_qr;
+      if (codigo && /^\d{6}$/.test(codigo)) {
+        console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+        localStorage.setItem("clickCount", "0");
+
+        console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
+        await guardarStatusActual0(userId);
+      }
+    } catch (verifError) {
+      console.error("⚠️ Error verificando backend antes del cierre automático:", verifError);
+    }
+
+    // 🟢 Luego se ejecuta el cierre normal
+    cerrarSesionGlobal({
       auto: true,
       userId,
       temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
@@ -312,7 +341,6 @@ window.addEventListener("beforeunload", async (event) => {
   } catch (err) {
     console.error("❌ Error en cierre automático:", err);
   } finally {
-   
     // 🔹 Resetear variables locales
     currentUser = null;
     clickCount = 0;
