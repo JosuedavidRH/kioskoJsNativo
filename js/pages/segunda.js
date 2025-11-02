@@ -1,6 +1,9 @@
 // js/pages/segunda.js  analiza  el codigo de produccion pero no modifiques nada
 
-// ✅ Generar 3 códigos aleatorios de 6 dígitos
+
+import { guardarStatusActual0 } from "../utils/guardarStatusActual0.js";
+
+// ✅ Generar 1 código aleatorio de 6 dígitos
 function generarTresCodigos() {
   return Array.from({ length: 1 }, () =>
     Math.floor(100000 + Math.random() * 900000).toString()
@@ -17,17 +20,19 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
 
   // --- Título
   const title = document.createElement("h2");
-  title.textContent = `Bienvenido apartamento ${user?.apartmentNumber || user} a la segunda página`;
-  title.style.marginBottom = "30px";
+  title.textContent = `Activa tu compra , Acercando este codigo al lector de la tienda`;
+  title.style.marginBottom = "20px";
   wrapper.appendChild(title);
 
-  // --- Contenedor de códigos
-  const codigosContainer = document.createElement("div");
-  codigosContainer.style.display = "flex";
-  codigosContainer.style.justifyContent = "center";
-  codigosContainer.style.gap = "30px";
-  codigosContainer.style.marginBottom = "40px";
-  wrapper.appendChild(codigosContainer);
+  // --- Imagen QR animada
+  const qrGif = document.createElement("img");
+  qrGif.src = "./public/qr.gif";
+  qrGif.alt = "Animación escanear QR";
+  qrGif.style.width = "200px";
+  qrGif.style.height = "auto";
+  qrGif.style.marginBottom = "30px";
+  qrGif.style.borderRadius = "10px";
+  wrapper.appendChild(qrGif);
 
   // --- Contenedor para el QR
   const qrContainer = document.createElement("div");
@@ -36,27 +41,20 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
   qrContainer.style.marginBottom = "20px";
   wrapper.appendChild(qrContainer);
 
-  // --- Botón volver
-  const btnVolver = document.createElement("button");
-  btnVolver.textContent = "Volver a la página principal";
-  btnVolver.style.marginTop = "60px";
-  btnVolver.style.backgroundColor = "#4CAF50";
-  btnVolver.style.color = "white";
-  btnVolver.style.border = "none";
-  btnVolver.style.borderRadius = "90px";
-  btnVolver.style.width = "160px";
-  btnVolver.style.height = "160px";
-  btnVolver.style.padding = "40px";
-  btnVolver.style.cursor = "pointer";
-  btnVolver.style.fontSize = "0.9rem";
-  btnVolver.style.fontWeight = "bold";
-  wrapper.appendChild(btnVolver);
+  // --- ⏱️ Temporizador debajo del botón
+  const timerText = document.createElement("p");
+  timerText.style.fontSize = "1.5rem";
+  timerText.style.marginTop = "20px";
+  timerText.style.fontWeight = "bold";
+  timerText.style.color = "#333";
+  wrapper.appendChild(timerText);
 
   // --- Variables locales
   let codigos = [];
   let indexActual = 0;
+  let intervalo;
 
-  // --- Cargar script QRCode si no está presente
+  // --- Asegurar que QRCode esté cargado
   async function ensureQRCodeLoaded() {
     if (window.QRCode) return true;
 
@@ -79,7 +77,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
     });
   }
 
-  // --- Cargar y restaurar datos (imitando useEffect)
+  // --- Cargar y restaurar datos
   async function cargarDatos() {
     try {
       const localUser = user?.username || user;
@@ -90,7 +88,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
 
       await ensureQRCodeLoaded();
 
-      // ✅ 1️⃣ Usar los códigos enviados desde BotonPrincipal (si existen)
+      // 1️⃣ Si vienen códigos desde BotonPrincipal
       if (Array.isArray(codigosPasados) && codigosPasados.length > 0) {
         codigos = codigosPasados;
         indexActual = indexPasado || 0;
@@ -100,10 +98,11 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
 
         console.log("✅ Usando códigos recibidos desde BotonPrincipal:", codigos);
         render();
+        iniciarTemporizador(localUser); // ⏱️
         return;
       }
 
-      // ✅ 2️⃣ Si no hay datos pasados, intentar cargar desde localStorage
+      // 2️⃣ Si hay datos guardados en localStorage
       const codigosGuardados = JSON.parse(localStorage.getItem("codigos"));
       const indexGuardado = parseInt(localStorage.getItem("indexActual"), 10);
 
@@ -117,39 +116,28 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
         indexActual = indexGuardado;
         console.log("✅ Restaurando códigos desde localStorage:", codigos);
         render();
+        iniciarTemporizador(localUser); // ⏱️
         return;
       }
 
-      // ✅ 3️⃣ Como último recurso: generar nuevos
+      // 3️⃣ Si no hay códigos, generar nuevos
       codigos = generarTresCodigos();
       indexActual = 0;
       localStorage.setItem("codigos", JSON.stringify(codigos));
       localStorage.setItem("indexActual", "0");
       console.warn("⚠️ No se encontraron códigos, se generaron nuevos:", codigos);
       render();
-
+      iniciarTemporizador(localUser); // ⏱️
     } catch (error) {
       console.error("❌ Error al cargar datos:", error);
     }
   }
 
-  // --- Renderizar la vista
+  // --- Renderizar QR
   function render() {
-    codigosContainer.innerHTML = "";
     qrContainer.innerHTML = "";
 
-    codigos.forEach((code, i) => {
-      const box = document.createElement("div");
-      box.textContent = code;
-      box.style.padding = "10px 20px";
-      box.style.borderRadius = "10px";
-      box.style.fontWeight = "bold";
-      box.style.fontSize = "1.3rem";
-      box.style.backgroundColor = i === indexActual ? "#00c0ff" : "#f0f0f0";
-      codigosContainer.appendChild(box);
-    });
-
-    const qrActual = codigos[0]; // ✅ Mostrar siempre el primer código
+    const qrActual = codigos[0];
     if (qrActual && window.QRCode) {
       const canvas = document.createElement("canvas");
       qrContainer.appendChild(canvas);
@@ -157,7 +145,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
       window.QRCode.toCanvas(
         canvas,
         `${user?.apartmentNumber || user}|${qrActual}`,
-        { width: 200 },
+        { width: 300 },
         (err) => {
           if (err) console.error(err);
         }
@@ -169,44 +157,54 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
     }
   }
 
-  // --- Botón volver
- btnVolver.addEventListener("click", () => {
-  const nuevoIndex = indexActual + 1;
+  // --- ⏱️ Temporizador con verificación de backend
+function iniciarTemporizador(apartmentNumber) {
+  let tiempoRestante = 45;
+  timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
 
-  if (nuevoIndex < 3) {
-    localStorage.setItem("indexActual", nuevoIndex.toString());
-  } else {
-    const nuevosCodigos = generarTresCodigos();
-    localStorage.setItem("codigos", JSON.stringify(nuevosCodigos));
-    localStorage.setItem("indexActual", "0");
-  }
+  intervalo = setInterval(async () => {
+    tiempoRestante--;
+    timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
 
-  const clickCount = Number(localStorage.getItem("clickCount")) || 0;
-  const timeLeftPrincipal = Number(localStorage.getItem("timeLeftPrincipal")) || 0;
-  const timeLeft1 = Number(localStorage.getItem("timeLeft1")) || 0;
+    if (tiempoRestante <= 0) {
+      clearInterval(intervalo);
 
-  localStorage.setItem("clickCount", clickCount.toString());
-  localStorage.setItem("timeLeftPrincipal", timeLeftPrincipal.toString());
-  localStorage.setItem("timeLeft1", timeLeft1.toString());
+      try {
+        console.log("⏱️ Verificando backend antes de regresar a home...");
+        const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
+        const data = await resp.json();
 
-  // ✅ Reforzar datos del usuario antes de volver a Home
-  localStorage.setItem("user", user?.username || user);
-  localStorage.setItem("apartmentNumber", user?.apartmentNumber || user);
+        // 🔸 Caso 1: sin códigos → HOME clickCount = 1
+        if (!data.success || !data.data || data.data.length === 0) {
+          console.log("⚪ No hay códigos activos → HOME clickCount = 1");
+          localStorage.setItem("clickCount", "1");
+          navigate("home");
+          return;
+        }
 
-  console.log("💾 Estado preservado antes de volver a Home:", {
-    clickCount,
-    timeLeftPrincipal,
-    timeLeft1,
-    user: localStorage.getItem("user"),
-    apartmentNumber: localStorage.getItem("apartmentNumber"),
-  });
+        // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 + guardarStatusActual0
+        const codigo = data.data[0]?.codigo_qr;
+        if (codigo && /^\d{6}$/.test(codigo)) {
+          console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+          localStorage.setItem("clickCount", "0");
 
-  navigate("home");
-});
+          console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
+          await guardarStatusActual0(apartmentNumber);
+        }
+
+        navigate("home");
+      } catch (error) {
+        console.error("❌ Error al verificar el backend:", error);
+        navigate("home"); // fallback seguro
+      }
+    }
+  }, 1000);
+}
 
 
-  // --- Cargar datos al inicio
+  // --- Cargar todo al iniciar
   cargarDatos();
 
   return wrapper;
 }
+
