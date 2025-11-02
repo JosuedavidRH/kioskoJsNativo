@@ -278,16 +278,55 @@ window.onload = () => {
   }
 };
 
-// 🛑🔁 Cierre automático seguro (sendBeacon no funciona en localhost pero si funciona en produccion)
+// 🛑🔁 Cierre automático seguro (sendBeacon no funciona en localhost pero si funciona en producción)
 
 window.addEventListener("beforeunload", async (event) => {
   try {
     if (!currentUser) return;
 
-    // 🧭 Capturar datos igual que en cierre manual
+    // 🧭 Capturar datos del usuario
     const userId =
       currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
 
+    if (!userId) {
+      console.warn("⚠️ No se encontró userId para cierre automático");
+      return;
+    }
+
+    // ⚙️ 1️⃣ PRIMERO: Verificar backend antes de cualquier cierre
+    try {
+      console.log("⏱️ Verificando backend antes del cierre...");
+      const resp = await fetch(
+        `https://backend-1uwd.onrender.com/api/guardar/recuperar/${userId}`
+      );
+      const data = await resp.json();
+
+      // 🔸 Caso 1: sin códigos → clickCount = 1
+      if (!data.success || !data.data || data.data.length === 0) {
+        console.log("⚪ No hay códigos activos → HOME clickCount = 1");
+        localStorage.setItem("clickCount", "1");
+      }
+
+      // 🔸 Caso 2: hay código de 6 dígitos → clickCount = 0 + guardarStatusActual0
+      const codigo = data.data?.[0]?.codigo_qr;
+      if (codigo && /^\d{6}$/.test(codigo)) {
+        console.log(
+          "🟢 Código válido detectado:",
+          codigo,
+          "→ HOME clickCount = 0"
+        );
+        localStorage.setItem("clickCount", "0");
+
+        console.log(
+          "🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos..."
+        );
+        await guardarStatusActual0(userId);
+      }
+    } catch (verifError) {
+      console.error("⚠️ Error verificando backend antes del cierre:", verifError);
+    }
+
+    // ⚙️ 2️⃣ LUEGO: Ejecutar la lógica original de cierre automático
     const storedClickCount = localStorage.getItem("clickCount");
     const statusActual =
       storedClickCount !== null
@@ -301,36 +340,12 @@ window.addEventListener("beforeunload", async (event) => {
       timeLeft1: localStorage.getItem("timeLeft1"),
     });
 
-    // 🟣 Nueva integración → Verificar backend antes del cierre
-    try {
-      console.log("⏱️ Verificando backend antes de regresar a home...");
-      const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${userId}`);
-      const data = await resp.json();
-
-      // 🔸 Caso 1: sin códigos → HOME clickCount = 1
-      if (!data.success || !data.data || data.data.length === 0) {
-        console.log("⚪ No hay códigos activos → HOME clickCount = 1");
-        localStorage.setItem("clickCount", "1");
-      }
-
-      // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 + guardarStatusActual0
-      const codigo = data.data?.[0]?.codigo_qr;
-      if (codigo && /^\d{6}$/.test(codigo)) {
-        console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
-        localStorage.setItem("clickCount", "0");
-
-        console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
-        await guardarStatusActual0(userId);
-      }
-    } catch (verifError) {
-      console.error("⚠️ Error verificando backend antes del cierre automático:", verifError);
-    }
-
-    // 🟢 Luego se ejecuta el cierre normal
+    // 🔹 Llamar al cierre global con los datos finales
     cerrarSesionGlobal({
       auto: true,
       userId,
-      temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
+      temporizadorPrincipal:
+        Number(localStorage.getItem("timeLeftPrincipal")) || 0,
       statusActual,
       temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
       temporizadorFactura2: 0,
