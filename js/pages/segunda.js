@@ -162,6 +162,40 @@ function iniciarTemporizador(apartmentNumber) {
   let tiempoRestante = 45;
   timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
 
+  // 🚫 Bloquear refresco/cierre mientras corre el temporizador
+window.onbeforeunload = (event) => {
+  event.preventDefault();
+  event.returnValue = "Hay un proceso activo. ¿Seguro que quieres salir?";
+
+  try {
+    // 🩵 Obtener apartmentNumber correctamente desde 'user' o localStorage
+    let apartmentNumber =
+      (typeof user === "object" && user?.apartmentNumber) ||
+      localStorage.getItem("apartmentNumber") ||
+      user;
+
+    if (!apartmentNumber) {
+      console.warn("⚠️ No se encontró apartmentNumber antes de salir");
+      return;
+    }
+
+    // 📦 Mismo cuerpo que guardarStatusActual0
+    const payload = JSON.stringify({
+      userId: apartmentNumber,
+      statusActual: 0,
+    });
+
+    // 📡 Enviar al backend de forma confiable antes de cerrar
+    navigator.sendBeacon("https://backend-1uwd.onrender.com/api/realTime/statusActual", payload);
+
+    console.log("📤 StatusActual=0 enviado automáticamente al intentar salir");
+  } catch (err) {
+    console.error("❌ Error al enviar statusActual=0 antes de salir:", err);
+  }
+};
+
+
+
   intervalo = setInterval(async () => {
     tiempoRestante--;
     timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
