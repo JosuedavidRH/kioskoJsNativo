@@ -16,6 +16,12 @@ import { temporizador2 } from "./temporizador2.js";
 import { temporizador3 } from "./temporizador3.js";
 
 
+import { guardarStatusActual0 } from "./utils/guardarStatusActual0.js";
+import { guardarStatusActual } from "./utils/guardarStatusActual.js";
+
+
+
+
 
 
 
@@ -280,13 +286,21 @@ window.onload = () => {
 
 // 🛑🔁 Cierre automático seguro (sendBeacon no funciona en localhost pero si funciona en produccion)
 
+
+
 window.addEventListener("beforeunload", async (event) => {
   try {
     if (!currentUser) return;
 
+    // ⚠️ Mostrar aviso antes de cerrar o recargar
+    event.preventDefault();
+    event.returnValue = "¿Seguro que quieres salir? Los datos podrían perderse.";
+
     // 🧭 Capturar datos igual que en cierre manual
     const userId =
       currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
+
+    const apartmentNumber = userId; // 👈 Usaremos esta variable para el fetch
 
     const storedClickCount = localStorage.getItem("clickCount");
     const statusActual =
@@ -301,7 +315,51 @@ window.addEventListener("beforeunload", async (event) => {
       timeLeft1: localStorage.getItem("timeLeft1"),
     });
 
-     cerrarSesionGlobal({
+    // 🔹 1️⃣ Consultar el backend para verificar si hay códigos activos
+    const response = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+
+   // 🔸 Caso 1: sin códigos → HOME clickCount = 1 (solo si clickCount > 0)
+const clickCountActual = Number(localStorage.getItem("clickCount")) || 0;
+
+if (
+  (!data.success || !data.data || data.data.length === 0) && 
+  clickCountActual > 0
+) {
+  console.log("⚪ No hay códigos activos → HOME clickCount = 1 (clickCount > 0)");
+  localStorage.setItem("clickCount", "1");
+
+  try {
+    if (apartmentNumber) {
+      console.log("📤 Enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumber);
+      await guardarStatusActual(1, apartmentNumber);
+    } else {
+      console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
+    }
+  } catch (err) {
+    console.error("❌ Error al ejecutar guardarStatusActual(1):", err);
+  }
+} else {
+  console.log("🚫 No se cumple la condición (no guardarStatusActual), pero se continúa con el flujo normal");
+}
+
+
+    // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0
+    const codigo = data.data?.[0]?.codigo_qr;
+    if (codigo && /^\d{6}$/.test(codigo)) {
+      console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+      localStorage.setItem("clickCount", "0");
+
+      console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
+      await guardarStatusActual0(apartmentNumber);
+    }
+
+    // 🔹 Finalmente cerrar sesión global
+    await cerrarSesionGlobal({
       auto: true,
       userId,
       temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
@@ -312,10 +370,10 @@ window.addEventListener("beforeunload", async (event) => {
     });
 
     console.log("✅ Sesión cerrada automáticamente y datos enviados al backend");
+
   } catch (err) {
     console.error("❌ Error en cierre automático:", err);
   } finally {
-   
     // 🔹 Resetear variables locales
     currentUser = null;
     clickCount = 0;
@@ -326,7 +384,5 @@ window.addEventListener("beforeunload", async (event) => {
 
     // 🔹 Limpiar almacenamiento
     localStorage.clear();
-
-    // 🔹 No recargamos aquí (pestaña se está cerrando)
   }
 });
