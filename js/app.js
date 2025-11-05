@@ -321,11 +321,13 @@ window.addEventListener("beforeunload", async (event) => {
       headers: { "Content-Type": "application/json" },
     });
 
-    const data = await response.json();
+      
+const data = await response.json();
 
-   // 🔸 Caso 1: sin códigos → HOME clickCount = 1 (solo si clickCount > 0)
+// ✅ Declarar clickCountActual una sola vez antes de ambos casos
 const clickCountActual = Number(localStorage.getItem("clickCount")) || 0;
 
+// 🔸 Caso 1: sin códigos → HOME clickCount = 1 (solo si clickCount > 0)
 if (
   (!data.success || !data.data || data.data.length === 0) && 
   clickCountActual > 0
@@ -347,16 +349,19 @@ if (
   console.log("🚫 No se cumple la condición (no guardarStatusActual), pero se continúa con el flujo normal");
 }
 
+// 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 (solo si clickCount > 0)
+const codigo = data.data?.[0]?.codigo_qr;
 
-    // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0
-    const codigo = data.data?.[0]?.codigo_qr;
-    if (codigo && /^\d{6}$/.test(codigo)) {
-      console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
-      localStorage.setItem("clickCount", "0");
+if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 0) {
+  console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+  localStorage.setItem("clickCount", "0");
 
-      console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
-      await guardarStatusActual0(apartmentNumber);
-    }
+  console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
+  await guardarStatusActual0(apartmentNumber);
+} else {
+  console.log("🚫 No se cumple la condición (clickCount <= 0 o sin código válido) → No se envía nada al backend");
+}
+
 
     // 🔹 Finalmente cerrar sesión global
     await cerrarSesionGlobal({
