@@ -349,18 +349,35 @@ if (
   console.log("🚫 No se cumple la condición (no guardarStatusActual), pero se continúa con el flujo normal");
 }
 
-// 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 (solo si clickCount > 0)
-const codigo = data.data?.[0]?.codigo_qr;
+ // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 (solo si clickCount > 0)
+    const codigo = data.data?.[0]?.codigo_qr;
 
-if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 0) {
-  console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
-  localStorage.setItem("clickCount", "0");
+    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 0) {
+      console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+      localStorage.setItem("clickCount", "0");
 
-  console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
-  await guardarStatusActual0(apartmentNumber);
-} else {
-  console.log("🚫 No se cumple la condición (clickCount <= 0 o sin código válido) → No se envía nada al backend");
-}
+      console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
+
+      const payload0 = JSON.stringify({
+        userId: apartmentNumber,
+        statusActual: 0,
+      });
+
+      if (location.hostname !== "localhost") {
+        navigator.sendBeacon(
+          "https://backend-1uwd.onrender.com/api/realTime/statusActual",
+          new Blob([payload0], { type: "application/json" })
+        );
+        console.log("📡 Enviado con sendBeacon (statusActual=0)");
+      } else {
+        // 🔹 En local: mantener fetch normal
+        await guardarStatusActual0(apartmentNumber);
+      }
+    } else {
+      console.log(
+        "🚫 No se cumple la condición (clickCount <= 0 o sin código válido) → No se envía nada al backend"
+      );
+    }
 
 
     // 🔹 Finalmente cerrar sesión global
