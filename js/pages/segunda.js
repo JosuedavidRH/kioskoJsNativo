@@ -3,6 +3,7 @@
 
 import { guardarStatusActual0 } from "../utils/guardarStatusActual0.js";
 import { guardarStatusActual } from "../utils/guardarStatusActual.js";
+import { enviarWhatsApp } from "../utils/enviarWhatsApp.js";
 
 // ✅ Generar 1 código aleatorio de 6 dígitos
 function generarTresCodigos() {
@@ -178,32 +179,33 @@ function iniciarTemporizador(apartmentNumber) {
         const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
         const data = await resp.json();
 
-       // 🔸 Caso 1: sin códigos → HOME clickCount = 1
-if (!data.success || !data.data || data.data.length === 0) {
-  console.log("⚪ No hay códigos activos → HOME clickCount = 1");
-  localStorage.setItem("clickCount", "1");
+      // 🔸 Caso 1: sin códigos → HOME clickCount = 1
+          if (!data.success || !data.data || data.data.length === 0) {
+            console.log("⚪ No hay códigos activos → HOME clickCount = 1");
+            localStorage.setItem("clickCount", "1");
 
-  try {
-  let apartmentNumber =
-    (typeof user === "object" && user?.apartmentNumber) ||
-    localStorage.getItem("apartmentNumber") ||
-    user;
+            try {
+              let apartmentNumberFinal =
+                (typeof user === "object" && user?.apartmentNumber) ||
+                localStorage.getItem("apartmentNumber") ||
+                user;
 
-  if (apartmentNumber) {
-    console.log("📤 enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumber);
-    await guardarStatusActual(1, apartmentNumber);
-  } else {
-    console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
-  }
-} catch (err) {
-  console.error("❌ Error al ejecutar guardarStatusActual(1):", err);
-}
+              if (apartmentNumberFinal) {
+                console.log("📤 enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumberFinal);
+                await guardarStatusActual(1, apartmentNumberFinal);
 
+                // 🚀 SOLO AQUÍ se envía el WhatsApp
+                await enviarWhatsApp("+573161833538", "📢 Su factura estará lista en 15 minutos.");
+              } else {
+                console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
+              }
+            } catch (err) {
+              console.error("❌ Error al ejecutar guardarStatusActual(1):", err);
+            }
 
-  navigate("home");
-  return;
-}
-       
+            navigate("home");
+            return;
+          }
 
         // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 + guardarStatusActual0
         const codigo = data.data[0]?.codigo_qr;
