@@ -4,14 +4,14 @@
 import { LoginPage } from "./pages/login.js";
 import { RegisterPage } from "./pages/register.js";
 import { HomePage } from "./pages/home.js";
-import { SegundaPage } from "./pages/segunda.js";  // 🆕 Nueva página
+import { SegundaPage } from "./pages/segunda.js";  
 import { temporizador } from "./temporizador.js";
 
 import { restaurarDatos } from "./utils/restaurarDatos.js";
 
 import { cerrarSesionGlobal } from "./utils/cerrarSesion.js"; 
 
-import { temporizador1 } from "./temporizador1.js";// 👈 APENAS SE INCLUYO
+import { temporizador1 } from "./temporizador1.js";
 import { temporizador2 } from "./temporizador2.js";
 import { temporizador3 } from "./temporizador3.js";
 
@@ -19,9 +19,7 @@ import { temporizador3 } from "./temporizador3.js";
 import { guardarStatusActual0 } from "./utils/guardarStatusActual0.js";
 import { guardarStatusActual } from "./utils/guardarStatusActual.js";
 
-
-
-
+import { enviarWhatsApp } from "./utils/enviarWhatsApp.js";
 
 
 
@@ -327,6 +325,8 @@ const data = await response.json();
 // ✅ Declarar clickCountActual una sola vez antes de ambos casos
 const clickCountActual = Number(localStorage.getItem("clickCount")) || 0;
 
+
+
 // 🔸 Caso 1: sin códigos → HOME clickCount = 1 (solo si clickCount > 0)
 if (
   (!data.success || !data.data || data.data.length === 0) && 
@@ -339,15 +339,22 @@ if (
     if (apartmentNumber) {
       console.log("📤 Enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumber);
       await guardarStatusActual(1, apartmentNumber);
+
+      // 🟢 Enviar mensaje de WhatsApp al cumplir la condición
+      console.log("📨 Enviando notificación WhatsApp al usuario...");
+      await enviarWhatsApp("+573161833538", "📢 Su factura estará lista en 15 minutos.");
+      console.log("✅ Mensaje de WhatsApp enviado correctamente tras guardarStatusActual(1)");
+      
     } else {
       console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
     }
   } catch (err) {
-    console.error("❌ Error al ejecutar guardarStatusActual(1):", err);
+    console.error("❌ Error al ejecutar guardarStatusActual(1) o enviar WhatsApp:", err);
   }
 } else {
   console.log("🚫 No se cumple la condición (no guardarStatusActual), pero se continúa con el flujo normal");
 }
+
 
  // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 (solo si clickCount > 0)
     const codigo = data.data?.[0]?.codigo_qr;
