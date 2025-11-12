@@ -1,6 +1,8 @@
 
 
-// js/pages/login.js
+// js/pages/login.js  analiza  el codigo de produccion pero no modifiques nada
+
+
 
 export function LoginPage(onLogin, goToRegister) {
   // Crear estructura principal
@@ -28,20 +30,54 @@ export function LoginPage(onLogin, goToRegister) {
   const form = document.createElement("form");
   form.className = "login-form";
 
+  // Input de usuario (número)
   const inputUser = document.createElement("input");
-  inputUser.type = "text";
-  inputUser.placeholder = "Usuario";
+  inputUser.type = "number";
+  inputUser.placeholder = "Tu WhatsApp";
+
+  // Contenedor para contraseña + icono de ojo
+  const passContainer = document.createElement("div");
+  passContainer.style.position = "relative";
+  passContainer.style.width = "100%";
 
   const inputPass = document.createElement("input");
   inputPass.type = "password";
   inputPass.placeholder = "Contraseña";
+  inputPass.style.paddingRight = "35px"; // espacio para el icono
 
+  // Icono de ojo
+  const toggleIcon = document.createElement("span");
+  toggleIcon.textContent = "👁️";
+  toggleIcon.style.position = "absolute";
+  toggleIcon.style.right = "10px";
+  toggleIcon.style.top = "50%";
+  toggleIcon.style.transform = "translateY(-50%)";
+  toggleIcon.style.cursor = "pointer";
+  toggleIcon.style.userSelect = "none";
+
+  // Evento mostrar/ocultar contraseña
+  toggleIcon.addEventListener("click", () => {
+    if (inputPass.type === "password") {
+      inputPass.type = "text";
+      toggleIcon.textContent = "🙈";
+    } else {
+      inputPass.type = "password";
+      toggleIcon.textContent = "👁️";
+    }
+  });
+
+  // Agregar input y ojo al contenedor
+  passContainer.appendChild(inputPass);
+  passContainer.appendChild(toggleIcon);
+
+  // Botón ingresar
   const btnSubmit = document.createElement("button");
   btnSubmit.type = "submit";
   btnSubmit.textContent = "Ingresar";
 
+  // Añadir elementos al formulario
   form.appendChild(inputUser);
-  form.appendChild(inputPass);
+  form.appendChild(passContainer);
   form.appendChild(btnSubmit);
   container.appendChild(form);
 
@@ -69,6 +105,13 @@ export function LoginPage(onLogin, goToRegister) {
     const username = inputUser.value.trim();
     const password = inputPass.value.trim();
 
+    // 🔒 Validación antes de enviar
+  if (!username || !password) {
+    errorMsg.textContent = "Por favor, ingresa tu número y contraseña.";
+    errorMsg.style.display = "block";
+    return; // Detiene el envío
+  }
+
     try {
       const res = await fetch('https://backend-1uwd.onrender.com/api/login', {
         method: "POST",
@@ -80,7 +123,11 @@ export function LoginPage(onLogin, goToRegister) {
 
       if (data.success) {
         console.log("Login exitoso:", data);
-        if (onLogin) onLogin({ username: data.username, apartmentNumber: data.apartmentNumber });
+        if (onLogin)
+          onLogin({
+            username: data.username,
+            apartmentNumber: data.apartmentNumber,
+          });
       } else {
         errorMsg.textContent = "Credenciales inválidas";
         errorMsg.style.display = "block";
