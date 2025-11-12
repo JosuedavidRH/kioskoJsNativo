@@ -56,6 +56,15 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
   let indexActual = 0;
   let intervalo;
 
+  // --- ✅ Función para obtener número de WhatsApp
+  function obtenerNumeroUsuario() {
+    let numero = localStorage.getItem("user") || user?.username || user;
+    if (numero && !numero.startsWith("+")) {
+      numero = "+57" + numero;
+    }
+    return numero;
+  }
+
   // --- Asegurar que QRCode esté cargado
   async function ensureQRCodeLoaded() {
     if (window.QRCode) return true;
@@ -100,7 +109,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
 
         console.log("✅ Usando códigos recibidos desde BotonPrincipal:", codigos);
         render();
-        iniciarTemporizador(localUser); // ⏱️
+        iniciarTemporizador(localUser);
         return;
       }
 
@@ -118,7 +127,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
         indexActual = indexGuardado;
         console.log("✅ Restaurando códigos desde localStorage:", codigos);
         render();
-        iniciarTemporizador(localUser); // ⏱️
+        iniciarTemporizador(localUser);
         return;
       }
 
@@ -129,7 +138,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
       localStorage.setItem("indexActual", "0");
       console.warn("⚠️ No se encontraron códigos, se generaron nuevos:", codigos);
       render();
-      iniciarTemporizador(localUser); // ⏱️
+      iniciarTemporizador(localUser);
     } catch (error) {
       console.error("❌ Error al cargar datos:", error);
     }
@@ -160,26 +169,24 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
   }
 
   // --- ⏱️ Temporizador con verificación de backend
-function iniciarTemporizador(apartmentNumber) {
-  let tiempoRestante = 45;
-  timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
-
-  
-
-
-  intervalo = setInterval(async () => {
-    tiempoRestante--;
+  function iniciarTemporizador(apartmentNumber) {
+    let tiempoRestante = 45;
     timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
 
-    if (tiempoRestante <= 0) {
-      clearInterval(intervalo);
+    intervalo = setInterval(async () => {
+      tiempoRestante--;
+      timerText.textContent = `ESTE CÓDIGO VENCE EN ${tiempoRestante} segundos`;
 
-      try {
-        console.log("⏱️ Verificando backend antes de regresar a home...");
-        const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
-        const data = await resp.json();
+      if (tiempoRestante <= 0) {
+        clearInterval(intervalo);
+        window.onbeforeunload = null;
 
-      // 🔸 Caso 1: sin códigos → HOME clickCount = 1
+        try {
+          console.log("⏱️ Verificando backend antes de regresar a home...");
+          const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
+          const data = await resp.json();
+
+          // 🔸 Caso 1: sin códigos → HOME clickCount = 1
           if (!data.success || !data.data || data.data.length === 0) {
             console.log("⚪ No hay códigos activos → HOME clickCount = 1");
             localStorage.setItem("clickCount", "1");
@@ -194,8 +201,13 @@ function iniciarTemporizador(apartmentNumber) {
                 console.log("📤 enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumberFinal);
                 await guardarStatusActual(1, apartmentNumberFinal);
 
-                // 🚀 SOLO AQUÍ se envía el WhatsApp
-                await enviarWhatsApp("+573161833538", "📢 Su factura estará lista en 15 minutos.");
+                // 🚀 SOLO AQUÍ se envía el WhatsApp usando número dinámico
+                const numeroDestino = obtenerNumeroUsuario();
+                console.log("📱 Enviando WhatsApp a:", numeroDestino);
+                await enviarWhatsApp(
+                  numeroDestino,
+                  "kiosko te informa que ya Tu FACTURA está lista,TIENES UN PLAZO de 2 horas para realizar el pago, ingresa al link de kiosko  https://kiosko-js-nativo-vxq3.vercel.app/"
+                );
               } else {
                 console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
               }
@@ -207,29 +219,26 @@ function iniciarTemporizador(apartmentNumber) {
             return;
           }
 
-        // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 + guardarStatusActual0
-        const codigo = data.data[0]?.codigo_qr;
-        if (codigo && /^\d{6}$/.test(codigo)) {
-          console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
-          localStorage.setItem("clickCount", "0");
+          // 🔸 Caso 2: hay código válido de 6 dígitos → HOME clickCount = 0
+          const codigo = data.data[0]?.codigo_qr;
+          if (codigo && /^\d{6}$/.test(codigo)) {
+            console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+            localStorage.setItem("clickCount", "0");
+            console.log("🟡 Llamando guardarStatusActual0...");
+            await guardarStatusActual0(apartmentNumber);
+          }
 
-          console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
-          await guardarStatusActual0(apartmentNumber);
+          navigate("home");
+        } catch (error) {
+          console.error("❌ Error al verificar el backend:", error);
+          navigate("home");
         }
-
-        navigate("home");
-      } catch (error) {
-        console.error("❌ Error al verificar el backend:", error);
-        navigate("home"); // fallback seguro
       }
-    }
-  }, 1000);
-}
-
+    }, 1000);
+  }
 
   // --- Cargar todo al iniciar
   cargarDatos();
 
   return wrapper;
 }
-
