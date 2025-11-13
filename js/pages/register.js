@@ -167,7 +167,7 @@ export function RegisterPage(goToLogin, onRegister) {
 
     try {
       // 🔹 Enviar solo el código, sin crear usuario aún
-      const res = await fetch('http://backend-1uwd.onrender.com/api/send-code', {
+      const res = await fetch('https://backend-1uwd.onrender.com/api/send-code', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username }),
@@ -201,7 +201,7 @@ export function RegisterPage(goToLogin, onRegister) {
 
     try {
       // Verificar código
-      const res = await fetch('http://backend-1uwd.onrender.com/api/verify-code', {
+      const res = await fetch('https://backend-1uwd.onrender.com/api/verify-code', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: tempUserData.username, code }),
