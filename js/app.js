@@ -282,23 +282,32 @@ window.onload = () => {
   }
 };
 
-// 🛑🔁 Cierre automático seguro (sendBeacon no funciona en localhost pero si funciona en produccion)
+
+// --- ✅ Función para obtener número de WhatsApp
+function obtenerNumeroUsuario() {
+  let numero = localStorage.getItem("user") || currentUser?.user || currentUser?.username;
+  if (numero && !numero.startsWith("+")) {
+    numero = "+57" + numero;
+  }
+  return numero;
+}
 
 
 
+// 🛑🔁 Cierre automático seguro (sendBeacon no funciona en localhost pero sí en producción)
 window.addEventListener("beforeunload", async (event) => {
   try {
     if (!currentUser) return;
 
-    // ⚠️ Mostrar aviso antes de cerrar o recargar
+    // ⚠️ Aviso de salida
     event.preventDefault();
     event.returnValue = "¿Seguro que quieres salir? Los datos podrían perderse.";
 
-    // 🧭 Capturar datos igual que en cierre manual
+    // 🧭 Datos del usuario
     const userId =
       currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
 
-    const apartmentNumber = userId; // 👈 Usaremos esta variable para el fetch
+    const apartmentNumber = userId;
 
     const storedClickCount = localStorage.getItem("clickCount");
     const statusActual =
@@ -313,57 +322,90 @@ window.addEventListener("beforeunload", async (event) => {
       timeLeft1: localStorage.getItem("timeLeft1"),
     });
 
-    // 🔹 1️⃣ Consultar el backend para verificar si hay códigos activos
-    const response = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`, {
+    // 🔹 1️⃣ Consultar el backend
+    const response = await fetch(`http://localhost:3001/recuperar_numeros/${apartmentNumber}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
 
-      
-const data = await response.json();
+    const data = await response.json();
 
-// ✅ Declarar clickCountActual una sola vez antes de ambos casos
-const clickCountActual = Number(localStorage.getItem("clickCount")) || 0;
-
+    // ClickCount real
+    const clickCountActual = Number(localStorage.getItem("clickCount")) || 0;
 
 
-// 🔸 Caso 1: sin códigos → HOME clickCount = 1 (solo si clickCount > 0)
-if (
-  (!data.success || !data.data || data.data.length === 0) && 
-  clickCountActual > 0
-) {
-  console.log("⚪ No hay códigos activos → HOME clickCount = 1 (clickCount > 0)");
-  localStorage.setItem("clickCount", "1");
 
-  try {
-    if (apartmentNumber) {
-      console.log("📤 Enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumber);
-      await guardarStatusActual(1, apartmentNumber);
+    // ───────────────────────────────────────────────
+    // 🔸 CASO 1 — NO HAY CÓDIGOS → clickCount = 1
+    // ───────────────────────────────────────────────
+    if (
+      (!data.success || !data.data || data.data.length === 0) && 
+      clickCountActual > 0
+    ) {
+      console.log("⚪ No hay códigos activos → HOME clickCount = 1");
+      localStorage.setItem("clickCount", "1");
 
-      // 🟢 Enviar mensaje de WhatsApp al cumplir la condición
-      console.log("📨 Enviando notificación WhatsApp al usuario...");
-      await enviarWhatsApp("+573161833538", "📢 Su factura estará lista en 15 minutos.");
-      console.log("✅ Mensaje de WhatsApp enviado correctamente tras guardarStatusActual(1)");
-      
+      // ⭐ Obtener número real del usuario
+      const userPhone = obtenerNumeroUsuario();
+      console.log("📞 Número capturado para WhatsApp:", userPhone);
+
+      try {
+        if (apartmentNumber) {
+          console.log("📤 Enviando guardarStatusActual(1) con apartmentNumber:", apartmentNumber);
+
+          // ❗ NO usar await en beforeunload → se lanza sin esperar
+          guardarStatusActual(1, apartmentNumber);
+
+          // 🟢 Enviar WhatsApp sin await (flujo normal)
+          if (userPhone) {
+            console.log("📨 Enviando notificación WhatsApp al usuario...");
+            enviarWhatsApp(
+              userPhone,
+              "📢 Su factura estará lista en 15 minutos."
+            );
+            console.log("🟢 Llamado enviarWhatsApp ejecutado");
+          } else {
+            console.warn("⚠️ No se encontró el número del usuario en localStorage");
+          }
+
+          // ⭐⭐ BACKUP sendBeacon — para garantizar envío en cierre
+          const beaconPayload = JSON.stringify({
+            to: userPhone,
+            mensaje: "📢 Su factura estará lista en 15 minutos."
+          });
+
+          const blob = new Blob([beaconPayload], { type: "application/json" });
+
+          const beaconOk = navigator.sendBeacon(
+            "https://backend-1uwd.onrender.com/api/enviar-whatsapp",
+            blob
+          );
+
+          console.log("🟡 Backup sendBeacon →", beaconOk ? "OK" : "FALLÓ");
+
+        } else {
+          console.warn("⚠️ No se encontró apartmentNumber para guardar statusActual=1");
+        }
+      } catch (err) {
+        console.error("❌ Error en guardarStatusActual(1) o WhatsApp:", err);
+      }
+
     } else {
-      console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
+      console.log("🚫 No se cumple CASO 1");
     }
-  } catch (err) {
-    console.error("❌ Error al ejecutar guardarStatusActual(1) o enviar WhatsApp:", err);
-  }
-} else {
-  console.log("🚫 No se cumple la condición (no guardarStatusActual), pero se continúa con el flujo normal");
-}
 
 
- // 🔸 Caso 2: hay código de 6 dígitos → HOME clickCount = 0 (solo si clickCount > 0)
+
+    // ───────────────────────────────────────────────
+    // 🔸 CASO 2 — HAY CÓDIGO DE 6 DÍGITOS → clickCount = 0
+    // ───────────────────────────────────────────────
     const codigo = data.data?.[0]?.codigo_qr;
 
     if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 0) {
-      console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 0");
+      console.log("🟢 Código detectado:", codigo, "→ HOME clickCount = 0");
       localStorage.setItem("clickCount", "0");
 
-      console.log("🟡 Llamando guardarStatusActual0 desde caso código de 6 dígitos...");
+      console.log("🟡 Llamando guardarStatusActual0 (código válido)");
 
       const payload0 = JSON.stringify({
         userId: apartmentNumber,
@@ -375,20 +417,19 @@ if (
           "https://backend-1uwd.onrender.com/api/realTime/statusActual",
           new Blob([payload0], { type: "application/json" })
         );
-        console.log("📡 Enviado con sendBeacon (statusActual=0)");
+        console.log("📡 sendBeacon statusActual=0 enviado");
       } else {
-        // 🔹 En local: mantener fetch normal
-        await guardarStatusActual0(apartmentNumber);
+        guardarStatusActual0(apartmentNumber); // sin await
       }
+
     } else {
-      console.log(
-        "🚫 No se cumple la condición (clickCount <= 0 o sin código válido) → No se envía nada al backend"
-      );
+      console.log("🚫 No se cumple CASO 2");
     }
 
 
-    // 🔹 Finalmente cerrar sesión global
-    await cerrarSesionGlobal({
+
+    // 🔹 Cierre global de sesión (NO usar await)
+    cerrarSesionGlobal({
       auto: true,
       userId,
       temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
@@ -398,12 +439,12 @@ if (
       temporizadorFactura3: 0,
     });
 
-    console.log("✅ Sesión cerrada automáticamente y datos enviados al backend");
+    console.log("🟢 cerrarSesionGlobal() lanzado");
 
   } catch (err) {
     console.error("❌ Error en cierre automático:", err);
   } finally {
-    // 🔹 Resetear variables locales
+    // 🔹 Reset variables
     currentUser = null;
     clickCount = 0;
     factura1Terminada = false;
@@ -411,7 +452,7 @@ if (
     factura3Terminada = false;
     clicked = false;
 
-    // 🔹 Limpiar almacenamiento
+    // 🔹 limpiar localStorage
     localStorage.clear();
   }
 });
