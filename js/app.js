@@ -363,7 +363,7 @@ window.addEventListener("beforeunload", async (event) => {
             console.log("📨 Enviando notificación WhatsApp al usuario...");
             enviarWhatsApp(
               userPhone,
-              "📢 Su factura estará lista en 15 minutos."
+              "📢kiosko te informa que ya Tu FACTURA está lista,TIENES UN PLAZO de 2 horas para realizar el pago, ingresa al link de kiosko  https://kiosko-js-nativo-vxq3.vercel.app/"
             );
             console.log("🟢 Llamado enviarWhatsApp ejecutado");
           } else {
