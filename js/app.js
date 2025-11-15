@@ -283,6 +283,8 @@ window.onload = () => {
 };
 
 
+
+
 // --- ✅ Función para obtener número de WhatsApp
 function obtenerNumeroUsuario() {
   let numero = localStorage.getItem("user") || currentUser?.user || currentUser?.username;
@@ -323,7 +325,7 @@ window.addEventListener("beforeunload", async (event) => {
     });
 
     // 🔹 1️⃣ Consultar el backend
-    const response = await fetch(`http://localhost:3001/recuperar_numeros/${apartmentNumber}`, {
+    const response = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
