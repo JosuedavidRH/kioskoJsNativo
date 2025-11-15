@@ -1,4 +1,4 @@
-
+/*register.css*/
 
 
 /* Fondo */
@@ -74,4 +74,75 @@
 .register-error {
   color: red;
   margin-top: 10px;
+}
+
+
+/* ---------- Fix avanzado para inputs en móvil (Register) ---------- */
+
+/* Normaliza el comportamiento en móviles */
+.register-form,
+.register-form * {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Asegura que todos los inputs tengan el mismo tamaño */
+.register-form input,
+.register-form div input {
+  display: block;
+  width: 100%;
+  height: 48px;                /* altura uniforme */
+  line-height: 48px;           /* centra el texto */
+  padding: 0 12px;             /* padding horizontal */
+  box-sizing: border-box;
+  font-size: 1rem;
+  font-family: inherit;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Inputs con icono (password y repetir password) */
+.password-field {
+  padding-right: 48px !important;   /* espacio para el icono */
+}
+
+/* Contenedor del input + icono */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Icono del ojo, siempre flotando */
+.toggle-password {
+  position: absolute !important;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  user-select: none;
+  height: auto;
+  line-height: normal;
+  font-size: 1.2rem;
+}
+
+/* Evitar que inputs number cambien tamaño en móvil */
+.register-form input[type="number"]::-webkit-inner-spin-button,
+.register-form input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.register-form input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Ajuste extra para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .register-form input,
+  .register-form div input {
+    height: 44px;
+    line-height: 44px;
+    padding-right: 44px;
+  }
 }
