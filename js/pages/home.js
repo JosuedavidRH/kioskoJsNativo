@@ -22,7 +22,7 @@ export function HomePage(user, onLogout) {
 
   // --- Bienvenida ---
   const title = document.createElement("h2");
-  title.textContent = `Bienvenido, Apto: ${user.apartmentNumber} (WhatsApp: ${user.username}) `;
+  title.textContent = `Bienvenido, Apto: ${user.apartmentNumber} WhatsApp: ${user.username} `;
   wrapper.appendChild(title);
 
   // 🔹 Leer estados desde localStorage para reflejar la vista real
