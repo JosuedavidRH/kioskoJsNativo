@@ -296,7 +296,7 @@ function obtenerNumeroUsuario() {
 
 
 
-// 🛑🔁 Cierre automático seguro (sendBeacon no funciona en localhost pero sí en producción)
+// 🛑🔁 Cierre automático seguro (version produccion)
 window.addEventListener("beforeunload", async (event) => {
   try {
     if (!currentUser) return;
