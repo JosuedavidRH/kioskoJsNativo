@@ -1,4 +1,4 @@
-
+/* login.css */
 
 
 /* Fondo */
@@ -82,4 +82,12 @@
 .login-error {
   color: red;
   margin-top: 10px;
+}
+
+/* Igualar la altura del input de contraseña */
+.login-form input[type="password"],
+.login-form input[type="text"] {
+  padding: 10px;
+  padding-right: 35px; /* Para el icono */
+  box-sizing: border-box;
 }
