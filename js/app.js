@@ -373,7 +373,7 @@ window.addEventListener("beforeunload", async (event) => {
           // ⭐⭐ BACKUP sendBeacon — para garantizar envío en cierre
           const beaconPayload = JSON.stringify({
             to: userPhone,
-            mensaje: "📢 Su factura estará lista en 15 minutos."
+            mensaje: "📢kiosko te informa que ya Tu FACTURA está lista,TIENES UN PLAZO de 2 horas para realizar el pago, ingresa al link de kiosko  https://kiosko-js-nativo-vxq3.vercel.app/"
           });
 
           const blob = new Blob([beaconPayload], { type: "application/json" });
