@@ -20,7 +20,7 @@ export function HomePage(user, onLogout) {
   wrapper.style.padding = "20px";
   wrapper.style.textAlign = "center";
 
-  // --- Bienvenida ---
+  // --- Bienvenida 
   const title = document.createElement("h2");
   title.textContent = `Bienvenido, Apto: ${user.apartmentNumber} WhatsApp: ${user.username} `;
   wrapper.appendChild(title);
