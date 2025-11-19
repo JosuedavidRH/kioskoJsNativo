@@ -2,7 +2,7 @@
 
 
 import { temporizadorfactura1 as TemporizadorFactura1 } from "../temporizadorfactura1.js";
-
+import { restaurarDatos } from "../utils/restaurarDatos.js";
 export function ContenedoresPaginaPrincipal({
   clickCount,
   factura1Terminada,
@@ -46,19 +46,26 @@ bloqueFactura1.style.position = "relative";
 bloqueFactura1.style.gap = "10px"; // espacio entre elementos
 
 if (factura1Terminada) {
-  // ✅ Evita múltiples imports y detenciones
-  if (!window.temporizador1Detenido) {
-    import("../temporizador1.js").then(({ temporizador1 }) => {
-      try {
-        temporizador1.stop();
-        localStorage.removeItem("timeLeft1");
-        console.log("🧾 Temporizador 1 detenido y limpiado");
-      } catch (err) {
-        console.warn("No se pudo detener temporizador1:", err);
-      }
-    });
-    window.temporizador1Detenido = true; // 🔸 Marca que ya se detuvo una vez
+
+  // ⛔ Si es usuario nuevo: NO detener temporizadores ni marcar temporizador1Detenido
+  if (window.usuarioNuevo) {
+    console.log("⛔ Usuario nuevo → NO detener temporizador1");
+  } else {
+    // Solo detener si NO es usuario nuevo
+    if (!window.temporizador1Detenido) {
+      import("../temporizador1.js").then(({ temporizador1 }) => {
+        try {
+          temporizador1.stop();
+          localStorage.removeItem("timeLeft1");
+          console.log("🧾 Temporizador 1 detenido y limpiado");
+        } catch (err) {
+          console.warn("No se pudo detener temporizador1:", err);
+        }
+      });
+      window.temporizador1Detenido = true;
+    }
   }
+
 
 
   // ✅ Estado: factura lista
