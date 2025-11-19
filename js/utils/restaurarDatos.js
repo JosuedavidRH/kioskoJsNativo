@@ -26,6 +26,18 @@ export const restaurarDatos = async ({
     console.log("🔍 Datos recibidos del backend:", data);
 
     if (!data.success || !data.data) {
+
+      
+     console.log("🟢 Usuario nuevo detectado, bloqueando factura1Terminada...");
+
+   // 🛑 Marcar usuario nuevo
+    window.usuarioNuevo = true;
+ 
+   // 🛑 Bloquear factura1Terminada desde el inicio
+    localStorage.removeItem("factura1Terminada");
+
+
+
       const keysToRemove = [
         "clicked",
         "codigos",

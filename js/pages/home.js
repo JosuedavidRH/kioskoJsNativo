@@ -81,20 +81,12 @@ export function HomePage(user, onLogout) {
     factura3Terminada,
     clicked,
     setFactura1Terminada: (v) => { 
-      localStorage.setItem("factura1Terminada", v); 
-      factura1Terminada = v;
-      render(); 
-    },
-    setFactura2Terminada: (v) => { 
-      localStorage.setItem("factura2Terminada", v); 
-      factura2Terminada = v;
-      render(); 
-    },
-    setFactura3Terminada: (v) => { 
-      localStorage.setItem("factura3Terminada", v); 
-      factura3Terminada = v;
-      render(); 
-    },
+  if (window.usuarioNuevo) return;   // ⛔ No guardar nada
+  localStorage.setItem("factura1Terminada", v); 
+  factura1Terminada = v;
+  render(); 
+  },
+    
     setClicked: (v) => { 
       localStorage.setItem("clicked", v); 
       clicked = v;
