@@ -20,6 +20,15 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
   wrapper.style.paddingTop = "50px";
   wrapper.style.minHeight = "100vh";
 
+
+  // ✅🛑 BORRAR FACTURAS SOLO SI EL USUARIO ES NUEVO
+  if (window.usuarioNuevo) {
+    console.warn("🛑 Usuario nuevo → limpiando facturas terminadas");
+    localStorage.removeItem("factura1Terminada");
+    localStorage.removeItem("factura2Terminada");
+    localStorage.removeItem("factura3Terminada");
+  }
+
   // --- Título
   const title = document.createElement("h2");
   title.textContent = `Activa tu compra , Acercando este codigo al lector de la tienda`;
