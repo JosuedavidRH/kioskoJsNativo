@@ -361,10 +361,7 @@ window.addEventListener("beforeunload", async (event) => {
           // 🟢 Enviar WhatsApp sin await (flujo normal)
           if (userPhone) {
             console.log("📨 Enviando notificación WhatsApp al usuario...");
-            enviarWhatsApp(
-              userPhone,
-              "📢kiosko te informa que ya Tu FACTURA está lista,TIENES UN PLAZO de 2 horas para realizar el pago, ingresa al link de kiosko  https://kiosko-js-nativo-vxq3.vercel.app/"
-            );
+            enviarWhatsApp(userPhone);
             console.log("🟢 Llamado enviarWhatsApp ejecutado");
           } else {
             console.warn("⚠️ No se encontró el número del usuario en localStorage");
@@ -372,14 +369,13 @@ window.addEventListener("beforeunload", async (event) => {
 
           // ⭐⭐ BACKUP sendBeacon — para garantizar envío en cierre
           const beaconPayload = JSON.stringify({
-            to: userPhone,
-            mensaje: "📢kiosko te informa que ya Tu FACTURA está lista,TIENES UN PLAZO de 2 horas para realizar el pago, ingresa al link de kiosko  https://kiosko-js-nativo-vxq3.vercel.app/"
+            to: userPhone
           });
 
           const blob = new Blob([beaconPayload], { type: "application/json" });
 
           const beaconOk = navigator.sendBeacon(
-            "https://backend-1uwd.onrender.com/api/enviar-whatsapp",
+            "https://backend-1uwd.onrender.com/api/enviar-factura-whatsapp",
             blob
           );
 

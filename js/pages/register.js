@@ -95,7 +95,7 @@ export function RegisterPage(goToLogin, onRegister) {
   verifyBox.style.background = "#f9f9f9";
 
   const verifyText = document.createElement("p");
-  verifyText.textContent = "Introduce el código de verificación enviado a tu WhatsApp:";
+  verifyText.textContent = "Introduce el código de verificación, enviado por mensaje de texto (sms):";
   verifyText.style.marginBottom = "10px";
 
   const inputCode = document.createElement("input");
@@ -167,7 +167,7 @@ export function RegisterPage(goToLogin, onRegister) {
 
     try {
       // 🔹 Enviar solo el código, sin crear usuario aún
-      const res = await fetch('https://backend-1uwd.onrender.com/api/send-code', {
+      const res = await fetch('https://backend-1uwd.onrender.com/api/send-code-sms', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username }),

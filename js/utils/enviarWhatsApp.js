@@ -10,7 +10,7 @@ export async function enviarWhatsApp(numero, mensaje) {
   try {
     console.log("📨 Enviando mensaje a backend WhatsApp...", { numero, mensaje });
 
-    const response = await fetch("https://backend-1uwd.onrender.com/api/enviar-whatsapp", {
+    const response = await fetch("https://backend-1uwd.onrender.com/api/enviar-factura-whatsapp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ to: numero, mensaje }),

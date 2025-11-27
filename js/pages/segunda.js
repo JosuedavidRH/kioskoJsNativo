@@ -213,10 +213,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
                 // 🚀 SOLO AQUÍ se envía el WhatsApp usando número dinámico
                 const numeroDestino = obtenerNumeroUsuario();
                 console.log("📱 Enviando WhatsApp a:", numeroDestino);
-                await enviarWhatsApp(
-                  numeroDestino,
-                  "kiosko te informa que ya Tu FACTURA está lista,TIENES UN PLAZO de 2 horas para realizar el pago, ingresa al link de kiosko  https://kiosko-js-nativo-vxq3.vercel.app/"
-                );
+                await enviarWhatsApp(numeroDestino);
               } else {
                 console.warn("⚠️ No se encontró apartmentNumber al guardar statusActual=1");
               }
