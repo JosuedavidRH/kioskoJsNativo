@@ -221,7 +221,7 @@ export function RegisterPage(goToLogin, onRegister) {
         if (createData.success && onRegister) {
           onRegister(tempUserData);
         } else {
-          errorMsg.textContent = "Error creando el usuario.";
+          errorMsg.textContent = "ERROR El Apartamento Registrado ya Existe";
           errorMsg.style.display = "block";
         }
       } else {
