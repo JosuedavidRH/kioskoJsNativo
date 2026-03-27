@@ -45,8 +45,10 @@ export function HomePage(user, onLogout) {
   timerBox.style.fontSize = "21px";
   timerBox.style.fontWeight = "bold";
 
-  // 👇 solo se muestra si clickCount > 0
-  if (clickCount > 0) {
+  // 👇 solo se muestra si clickCount es igual a 0
+
+  if (clickCount === 0) {
+
     wrapper.appendChild(timerBox);
 
     // Función que actualiza la vista del temporizador
@@ -62,6 +64,27 @@ export function HomePage(user, onLogout) {
       temporizador.addEventListener("update", (e) => {
         const { timeLeft } = e.detail;
         timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(timeLeft)}`;
+
+
+          // 🎯 Control de visibilidad del texto
+         if (clickCount === 0) {
+         timerBox.style.color = "transparent";
+        } else {
+         timerBox.style.color = "white";
+        }
+  
+
+          if (fondoRojo) {
+        wrapper.style.backgroundColor = "red";
+        }
+
+         if (timeLeft === 0) {
+         window.temporizadorListenerActivo = false;
+        onLogout();
+        }
+
+
+
       });
       window.temporizadorListenerActivo = true;
     }
@@ -126,7 +149,7 @@ export function HomePage(user, onLogout) {
       setIsProcessing: (v) => { user.isProcessing = v; },
       apartmentNumber: user.apartmentNumber,
       // 🔹 Inicia el temporizador al primer clic
-      startCountdown: (t = 43200) => temporizador.startCountdown(t),
+      startCountdown: (t = 120) => temporizador.startCountdown(t),
     });
     box.appendChild(botonPrincipal);
   }
@@ -134,20 +157,34 @@ export function HomePage(user, onLogout) {
   footer.appendChild(box);
 
   // --- Botón cerrar sesión ---
-  if (clickCount === 1) {
+  if (clickCount === 0 || clickCount === 1) {
     const btnLogout = document.createElement("button");
     btnLogout.textContent = "Cerrar 🔒";
 
     btnLogout.style.padding = "6px";
     btnLogout.style.fontSize = "0.9rem";
     btnLogout.style.borderRadius = "5px";
-    btnLogout.style.backgroundColor = "#f44336";
     btnLogout.style.color = "white";
     btnLogout.style.border = "none";
     btnLogout.style.cursor = "pointer";
-    btnLogout.addEventListener("click", onLogout);
-    btnLogout.style.marginTop = "-240px";
 
+
+   // 🎯 Fondo + texto según estado
+if (clickCount === 0) {
+  btnLogout.style.backgroundColor = "transparent";
+  btnLogout.style.color = "transparent"; // 👈 oculta el texto
+} else if (clickCount === 1) {
+  btnLogout.style.backgroundColor = "#f44336";
+  btnLogout.style.color = "white"; // 👈 texto visible
+}
+
+    // 🧹 Limpia bandera al cerrar sesión
+    btnLogout.addEventListener("click", () => {
+      window.temporizadorListenerActivo = false;
+      onLogout();
+    });
+
+    btnLogout.style.marginTop = "-240px";
     footer.appendChild(btnLogout);
   }
 
@@ -220,15 +257,15 @@ export function HomePage(user, onLogout) {
         isProcessing: user.isProcessing || false,
         setIsProcessing: (v) => { user.isProcessing = v; },
         apartmentNumber: user.apartmentNumber,
-        startCountdown: (t = 43200) => temporizador.startCountdown(t),
+        startCountdown: (t = 120) => temporizador.startCountdown(t),
       });
       boxActualizado.appendChild(botonPrincipal);
     }
 
     footerActualizado.appendChild(boxActualizado);
 
-    // --- Mostrar botón cerrar sesión solo si clickCount === 1 ---
-    if (clickCount === 1) {
+    // --- Mostrar botón cerrar sesión solo si clickCount === 0---
+    if (clickCount === 0) {
       const btnLogout = document.createElement("button");
       btnLogout.textContent = "Cerrar 🔒";
 

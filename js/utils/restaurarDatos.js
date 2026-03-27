@@ -52,7 +52,7 @@ export const restaurarDatos = async ({
       ];
       keysToRemove.forEach((key) => localStorage.removeItem(key));
 
-      onTimeLeftChange?.(43200);
+      onTimeLeftChange?.(120);
       onFondoRojoChange?.(false);
       onClickCountChange?.(0);
       localStorage.setItem("clickCount", 0);
@@ -63,7 +63,7 @@ export const restaurarDatos = async ({
 
       if (restart) {
         const exp = new Date();
-        exp.setSeconds(exp.getSeconds() + 43200);
+        exp.setSeconds(exp.getSeconds() + 120);
         restart(exp, false);
       }
 
@@ -87,7 +87,7 @@ export const restaurarDatos = async ({
 
     // ---------- 🕒 PRINCIPAL ----------
     if (statusNum === 0 || temporizadorPrincipal == null) {
-  const timeLeft = 43200;
+  const timeLeft = 120;
 
   // 🔹 Actualizar UI
   onTimeLeftChange?.(timeLeft);
@@ -151,7 +151,7 @@ export const restaurarDatos = async ({
     if (onTimeLeftFactura1Change) {
   if (statusNum === 0 || temporizadorFactura1 == null) {
     // 🔹 Inicializar factura 1
-    const initialTime = 1200;
+    const initialTime = 10800;
     onTimeLeftFactura1Change(initialTime);
     localStorage.setItem("timeLeft1", String(initialTime));
 
@@ -201,7 +201,7 @@ export const restaurarDatos = async ({
 
   } catch (error) {
     console.error("❌ Error al obtener datos iniciales:", error);
-    onTimeLeftChange?.(43200);
+    onTimeLeftChange?.(120);
     onFondoRojoChange?.(false);
 
     onTimeLeftFactura1Change?.(0);
@@ -210,7 +210,7 @@ export const restaurarDatos = async ({
 
     if (restart) {
       const exp = new Date();
-      exp.setSeconds(exp.getSeconds() + 43200);
+      exp.setSeconds(exp.getSeconds() + 120);
       restart(exp, false);
     }
 

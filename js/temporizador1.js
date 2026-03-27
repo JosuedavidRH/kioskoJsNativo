@@ -1,7 +1,7 @@
 // js/temporizador1.js   analiza  el codigo de produccion pero no modifiques nada
 
 class Temporizador1 extends EventTarget {
-  constructor(initialTime = 1200) {
+  constructor(initialTime = 10800) {
     super();
     this.timeLeft = Number(localStorage.getItem("timeLeft1")) || initialTime;
     this.interval = null;
@@ -32,7 +32,7 @@ class Temporizador1 extends EventTarget {
     this.dispatchUpdate();
   }
 
-  reset(newTime = 1200) {
+  reset(newTime = 10800) {
     this.stop();
     this.timeLeft = newTime;
     localStorage.setItem("timeLeft1", newTime);
@@ -50,11 +50,13 @@ class Temporizador1 extends EventTarget {
     }
   }
 
+  // 🔹 Formato HH:mm:ss
   formatTime(seconds = this.timeLeft) {
-    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
-    return `${m}:${s}`;
-  }
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
 
   onUpdate(callback) {
     this.addEventListener("update", (e) => callback(e.detail.timeLeft));
