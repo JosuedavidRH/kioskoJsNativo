@@ -78,17 +78,17 @@ if (factura1Terminada) {
 
   // 🖼️ Imagen superior cuando la factura está lista
   const imgFacturaLista = document.createElement("img");
-  imgFacturaLista.src = "./public/factura.gif";
+  imgFacturaLista.src = "./public/bloqueo.gif";
   imgFacturaLista.alt = "Factura lista";
-  imgFacturaLista.style.width = "120px";
-  imgFacturaLista.style.height = "120px";
+  imgFacturaLista.style.width = "320px";
+  imgFacturaLista.style.height = "320px";
   imgFacturaLista.style.marginBottom = "5px";
 
   const text = document.createElement("div");
   text.style.fontSize = "1rem";
   text.style.marginBottom = "8px";
   text.style.fontWeight = "bold";
-  text.textContent = "YA ESTA lista tu factura ";
+  text.textContent = "KIOSKO te informa que tu cuanta esta bloqueada por falta de pago ";
 
   const btn = document.createElement("button");
   btn.textContent = "VER";
@@ -115,8 +115,8 @@ if (factura1Terminada) {
 
   // 🔸 Botón circular amarillo con temporizador
   const btn = document.createElement("button");
-  btn.style.width = "160px";
-  btn.style.height = "160px";
+  btn.style.width = "220px";
+  btn.style.height = "220px";
   btn.style.borderRadius = "50%";
   btn.style.fontSize = "0.7rem";
   btn.style.backgroundColor = "#ff0";
@@ -137,7 +137,7 @@ if (factura1Terminada) {
 
   // 🔹 Texto debajo del círculo
   const textoEspera = document.createElement("span");
-  textoEspera.textContent = "ESPERA TU FACTURA";
+  textoEspera.textContent = "TIENES 3 HORAS DE PLAZO PARA REALIZAR EL PAGO DE TUS COMPRAS REALIZADAS";
   textoEspera.style.color = "white";
   textoEspera.style.fontSize = "0.8rem";
   textoEspera.style.fontWeight = "500";

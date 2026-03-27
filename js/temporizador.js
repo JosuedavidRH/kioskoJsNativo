@@ -7,7 +7,7 @@ import { cerrarSesionGlobal } from "./utils/cerrarSesion.js";
 class Temporizador extends EventTarget {
   constructor() {
     super();
-    this.timeLeft = Number(localStorage.getItem("timeLeftPrincipal")) || 43200; // 12h por defecto
+    this.timeLeft = Number(localStorage.getItem("timeLeftPrincipal")) || 120; // dos minutos 
     this.isRunning = false;
     this.fondoRojo = this.timeLeft <= 0;
     this.interval = null;
@@ -16,7 +16,7 @@ class Temporizador extends EventTarget {
   }
 
   // 🔹 Inicializar con datos de usuario
-  init({ apartmentNumber, initialTime = 43200, statusActual = 0 }) {
+  init({ apartmentNumber, initialTime = 120, statusActual = 0 }) {
     this.apartmentNumber = apartmentNumber;
     this.statusActual = statusActual;
     if (!localStorage.getItem("timeLeftPrincipal")) {
@@ -48,7 +48,7 @@ class Temporizador extends EventTarget {
   }
 
   // 🔹 Iniciar/reiniciar temporizador
-  startCountdown(secondsToRun = 43200) {
+  startCountdown(secondsToRun = 120) {
     this.stop(); // limpiar interval previo
     this.timeLeft = secondsToRun;
     this.fondoRojo = false;
