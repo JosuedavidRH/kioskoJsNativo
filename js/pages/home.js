@@ -22,7 +22,7 @@ export function HomePage(user, onLogout) {
 
   // --- Bienvenida 
   const title = document.createElement("h2");
-  title.textContent = `Bienvenido, Apto: ${user.apartmentNumber} WhatsApp: ${user.username} `;
+  title.textContent = `Bienvenido, Apto: ${user.apartmentNumber} (WhatsApp: ${user.username} `;
   wrapper.appendChild(title);
 
   // 🔹 Leer estados desde localStorage para reflejar la vista real
@@ -36,7 +36,7 @@ export function HomePage(user, onLogout) {
   // 🟢 Inicializar temporizador global con el usuario actual
   temporizador.init({
     apartmentNumber: user.apartmentNumber,
-    initialTime: Number(localStorage.getItem("timeLeftPrincipal")) || 43200,
+    initialTime: Number(localStorage.getItem("timeLeftPrincipal")) || 120,
     statusActual: 0,
   });
 
@@ -53,7 +53,7 @@ export function HomePage(user, onLogout) {
 
     // Función que actualiza la vista del temporizador
     function updateTimer() {
-      timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(temporizador.timeLeft)}`;
+      timerBox.textContent = `xxx ${temporizador.formatTimeLeft(temporizador.timeLeft)}`;
     }
 
     // Actualización inicial
@@ -62,8 +62,14 @@ export function HomePage(user, onLogout) {
     // ✅ Evitar listeners duplicados
     if (!window.temporizadorListenerActivo) {
       temporizador.addEventListener("update", (e) => {
+
         const { timeLeft } = e.detail;
         timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(timeLeft)}`;
+
+        const { timeLeft, fondoRojo } = e.detail;
+
+        timerBox.textContent = `xxx ${temporizador.formatTimeLeft(timeLeft)}`;
+
 
 
           // 🎯 Control de visibilidad del texto
@@ -276,7 +282,12 @@ if (clickCount === 0) {
       btnLogout.style.color = "white";
       btnLogout.style.border = "none";
       btnLogout.style.cursor = "pointer";
-      btnLogout.addEventListener("click", onLogout);
+
+      btnLogout.addEventListener("click", () => {
+        window.temporizadorListenerActivo = false;
+        onLogout();
+      });
+     
       btnLogout.style.marginTop = "-240px";
 
       footerActualizado.appendChild(btnLogout);
