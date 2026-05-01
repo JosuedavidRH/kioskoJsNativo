@@ -60,40 +60,37 @@ export function HomePage(user, onLogout) {
     updateTimer();
 
     // ✅ Evitar listeners duplicados
-    if (!window.temporizadorListenerActivo) {
-      temporizador.addEventListener("update", (e) => {
 
-        const { timeLeft } = e.detail;
-        timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(timeLeft)}`;
+  if (!window.temporizadorListenerActivo) {
+  temporizador.addEventListener("update", (e) => {
 
-        const { timeLeft, fondoRojo } = e.detail;
+    const { timeLeft, fondoRojo } = e.detail;
 
-        timerBox.textContent = `xxx ${temporizador.formatTimeLeft(timeLeft)}`;
+    // 👇 mantienes ambos textos (aunque uno sobreescriba al otro)
+    timerBox.textContent = `PLAZO DE PAGO ${temporizador.formatTimeLeft(timeLeft)}`;
+    timerBox.textContent = `xxx ${temporizador.formatTimeLeft(timeLeft)}`;
 
-
-
-          // 🎯 Control de visibilidad del texto
-         if (clickCount === 0) {
-         timerBox.style.color = "transparent";
-        } else {
-         timerBox.style.color = "white";
-        }
-  
-
-          if (fondoRojo) {
-        wrapper.style.backgroundColor = "red";
-        }
-
-         if (timeLeft === 0) {
-         window.temporizadorListenerActivo = false;
-        onLogout();
-        }
-
-
-
-      });
-      window.temporizadorListenerActivo = true;
+    // 🎯 Control de visibilidad del texto
+    if (clickCount === 0) {
+      timerBox.style.color = "transparent";
+    } else {
+      timerBox.style.color = "white";
     }
+
+    if (fondoRojo) {
+      wrapper.style.backgroundColor = "red";
+    }
+
+    if (timeLeft === 0) {
+      window.temporizadorListenerActivo = false;
+      onLogout();
+    }
+
+  });
+
+  window.temporizadorListenerActivo = true;
+}
+
 
     // 🔁 Si hay un tiempo guardado y el temporizador no está corriendo, reanúdalo
     const savedTime = Number(localStorage.getItem("timeLeftPrincipal") || 0);
