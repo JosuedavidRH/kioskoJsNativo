@@ -59,7 +59,12 @@ export function BotonPrincipal({
 
     try {
       if (clickCount === 0) {
-        const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
+       const url = `https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`;
+       console.log("🌐 URL:", url);
+       console.log("📦 apartmentNumber:", apartmentNumber);
+
+        const resp = await fetch(url);
+
         const data = await resp.json();
         const hayCodigos = data.success && data.data && data.data.length > 0;
 
