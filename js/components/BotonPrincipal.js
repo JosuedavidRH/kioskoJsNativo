@@ -63,9 +63,21 @@ export function BotonPrincipal({
          console.log("📦 apartmentNumber:", apartmentNumber);
 
         const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
-        const data = await resp.json();
+       const data = await resp.json();
+
+// 🔍 Logs de depuración
+console.log("📦 Respuesta completa:", data);
+console.log("📦 data.data:", data.data);
+
         const hayCodigos = data.success && data.data && data.data.length > 0;
 
+// 🔍 Log del resultado lógico
+console.log("✅ hayCodigos:", hayCodigos);
+
+// 🔍 Log de los códigos (solo si existen)
+if (data.success && Array.isArray(data.data)) {
+  console.log("🔑 códigos:", data.data.map(item => item.codigo_qr));
+}
         if (hayCodigos) {
           const codigosBD = data.data.map(item => item.codigo_qr);
           localStorage.setItem("codigos", JSON.stringify(codigosBD));
