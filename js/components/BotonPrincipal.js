@@ -16,6 +16,15 @@ export function BotonPrincipal({
   let clickCount = Number(localStorage.getItem("clickCount") || initialClickCount);
   let processing = isProcessing;
 
+  console.log("📱 username recibido:", username);
+
+
+  // 🔹 Guardar username (numero de whatsApp )en localStorage
+  if (username) {
+  localStorage.setItem("user", username);
+ }
+
+
   const button = document.createElement("button");
   button.style.width = "140px";
   button.style.height = "140px";

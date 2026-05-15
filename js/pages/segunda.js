@@ -246,5 +246,7 @@ export function SegundaPage({ user, codigos: codigosPasados, indexActual: indexP
   // --- Cargar todo al iniciar
   cargarDatos();
 
+  console.log("👤 user recibido en SegundaPage:", user);
+
   return wrapper;
 }
