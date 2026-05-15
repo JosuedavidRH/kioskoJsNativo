@@ -93,9 +93,11 @@ if (data.success && Array.isArray(data.data)) {
           const nuevosCodigos = Array.from({ length: 1 }, () =>
             Math.floor(100000 + Math.random() * 900000).toString()
           );
+           
 
-          localStorage.setItem("codigos", JSON.stringify(nuevosCodigos));
-          localStorage.setItem("indexActual", String(indexToShow));
+              // 🔹 Guardar en localStorage antes de navegar y se modifica codigos y indexActual en codigosss y indexActualss  para mejorar el almacenamiento en localstorage
+          localStorage.setItem("codigosss", JSON.stringify(nuevosCodigos));
+          localStorage.setItem("indexActualss", String(indexToShow));
 
           for (const codigo of nuevosCodigos) {
             const payload = { numero_apto: String(apartmentNumber), codigo_generado: codigo };
