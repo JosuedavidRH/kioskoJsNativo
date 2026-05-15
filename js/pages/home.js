@@ -7,6 +7,8 @@ import { temporizador3 } from "../temporizador3.js";
 import { ContenedoresPaginaPrincipal } from "../components/ContenedoresPaginaPrincipal.js";
 import { BotonPrincipal } from "../components/BotonPrincipal.js";
 
+
+
 export function HomePage(user, onLogout) {
   const wrapper = document.createElement("div");
   wrapper.className = "home-container";
@@ -25,6 +27,8 @@ export function HomePage(user, onLogout) {
   title.textContent = `Bienvenido, Apto: ${user.apartmentNumber} (WhatsApp: ${user.username} `;
   wrapper.appendChild(title);
 
+
+
   // 🔹 Leer estados desde localStorage para reflejar la vista real
   let clickCount = Number(localStorage.getItem("clickCount") || 0);
   console.log("🏠 HomePage renderizando con clickCount:", clickCount);
@@ -33,12 +37,6 @@ export function HomePage(user, onLogout) {
   let factura3Terminada = localStorage.getItem("factura3Terminada") === "true";
   let clicked = localStorage.getItem("clicked") === "true";
 
-  // 🟢 Inicializar temporizador global con el usuario actual
-  temporizador.init({
-    apartmentNumber: user.apartmentNumber,
-    initialTime: Number(localStorage.getItem("timeLeftPrincipal")) || 120,
-    statusActual: 0,
-  });
 
   // --- Temporizador principal ---
   const timerBox = document.createElement("div");
@@ -143,6 +141,7 @@ export function HomePage(user, onLogout) {
   if (clickCount !== 1) {
     const botonPrincipal = BotonPrincipal({
       clickCount,
+      username: user.username,
       setClickCount: (v) => { 
         localStorage.setItem("clickCount", v); 
         clickCount = v; 
@@ -252,6 +251,7 @@ if (clickCount === 0) {
     if (clickCount !== 1) {
       const botonPrincipal = BotonPrincipal({
         clickCount,
+        username: user.username,
         setClickCount: (v) => { 
           localStorage.setItem("clickCount", v); 
           clickCount = v; 
