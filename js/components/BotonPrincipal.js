@@ -6,6 +6,7 @@ import { navigate } from "../app.js";
 
 export function BotonPrincipal({
   clickCount: initialClickCount = 0,
+  username,
   setClickCount = () => {},
   isProcessing = false,
   setIsProcessing = () => {},
