@@ -28,9 +28,11 @@ export async function cerrarSesionGlobal({
 
 
   const tempFactura2 =
-    temporizadorFactura2 !== undefined
-      ? temporizadorFactura2
-      : Number(localStorage.getItem("timeLeftFactura2")) || 0;
+  temporizadorFactura2 !== undefined
+    ? temporizadorFactura2
+    : Number(localStorage.getItem("timeLeft2")) ||
+      Number(localStorage.getItem("timeLeftFactura2")) || 0;
+
 
   const tempFactura3 =
     temporizadorFactura3 !== undefined

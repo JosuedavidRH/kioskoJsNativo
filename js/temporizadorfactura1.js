@@ -5,7 +5,7 @@ import { temporizador1 } from "./temporizador1.js";
 
 export function temporizadorfactura1(onFinish) {
   const span = document.createElement("span");
-  span.style.fontSize = "3rem";
+  span.style.fontSize = "1.5rem";
   span.style.fontWeight = "bold";
   span.style.display = "inline-block";
 

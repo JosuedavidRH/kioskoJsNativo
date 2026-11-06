@@ -4,6 +4,7 @@ import { guardarStatusActual } from "../utils/guardarStatusActual.js";
 import { temporizador } from "../temporizador.js";
 import { navigate } from "../app.js";
 
+
 export function BotonPrincipal({
   clickCount: initialClickCount = 0,
   username,
@@ -25,7 +26,6 @@ export function BotonPrincipal({
   localStorage.setItem("user", username);
  }
 
-
   const button = document.createElement("button");
   button.style.width = "140px";
   button.style.height = "140px";
@@ -40,20 +40,53 @@ export function BotonPrincipal({
   button.style.position = "relative";
   button.style.top = "-65px";
 
+  // ✨ Interactividad del botón amarillo (solo cuando clickCount === 0)
+  button.style.transition = "all 0.2s ease";
+  button.style.fontWeight = "bold";
+  button.style.boxShadow = "0 5px 12px rgba(0,0,0,0.35)";
+  button.style.transform = "scale(1)";
+
+  const esInteractivo = () => clickCount === 0 && !button.disabled;
+
+  button.addEventListener("mouseenter", () => {
+    if (!esInteractivo()) return;
+    button.style.transform = "scale(1.08) translateY(-3px)";
+    button.style.boxShadow = "0 8px 18px rgba(0,0,0,0.4)";
+    button.style.filter = "brightness(1.1)";
+  });
+
+  button.addEventListener("mouseleave", () => {
+    button.style.transform = "scale(1)";
+    button.style.boxShadow = "0 5px 12px rgba(0,0,0,0.35)";
+    button.style.filter = "none";
+  });
+
+  button.addEventListener("mousedown", () => {
+    if (!esInteractivo()) return;
+    button.style.transform = "scale(0.94)";
+  });
+
+  button.addEventListener("mouseup", () => {
+    if (!esInteractivo()) return;
+    button.style.transform = "scale(1.08) translateY(-3px)";
+  });
+
+
   const updateButtonState = () => {
     button.disabled = clickCount === 3 || processing;
     button.style.opacity = button.disabled ? 0.6 : 1;
 
     if (clickCount === 0) {
-      button.textContent = "generar QR";
+      button.textContent = "COMPRAR";
       button.style.backgroundColor = "#ff0";
     } else if (clickCount === 1) {
       button.textContent = "TIENES 2 COMPRAS MAS";
       button.style.backgroundColor = "#59ff33";
     } else if (clickCount === 2) {
-      button.textContent = "TIENES 1 COMPRA MAS";
-      button.style.backgroundColor = "#eea82b";
-    } else if (clickCount === 3) {
+  button.textContent = "";
+  button.style.backgroundColor = "transparent";
+  button.style.color = "transparent";
+  }else if (clickCount === 3) {
       button.textContent = "YA NO TIENES MAS COMPRAS";
       button.style.backgroundColor = "#fd531e";
     }
@@ -70,24 +103,20 @@ export function BotonPrincipal({
     try {
       if (clickCount === 0) {
 
-         console.log("📦 apartmentNumber:", apartmentNumber);
+        console.log("📦 apartmentNumber:", apartmentNumber);
 
         const resp = await fetch(`https://backend-1uwd.onrender.com/api/guardar/recuperar/${apartmentNumber}`);
-       const data = await resp.json();
+        const data = await resp.json();
 
-// 🔍 Logs de depuración
+
+        // 🔍 Logs de depuración
 console.log("📦 Respuesta completa:", data);
 console.log("📦 data.data:", data.data);
 
+
+
         const hayCodigos = data.success && data.data && data.data.length > 0;
 
-// 🔍 Log del resultado lógico
-console.log("✅ hayCodigos:", hayCodigos);
-
-// 🔍 Log de los códigos (solo si existen)
-if (data.success && Array.isArray(data.data)) {
-  console.log("🔑 códigos:", data.data.map(item => item.codigo_qr));
-}
         if (hayCodigos) {
           const codigosBD = data.data.map(item => item.codigo_qr);
           localStorage.setItem("codigos", JSON.stringify(codigosBD));
@@ -99,26 +128,33 @@ if (data.success && Array.isArray(data.data)) {
 
           navigate("segunda", { user: apartmentNumber, codigos: codigosBD, indexActual: indexToShow });
         } else {
+
           // 🔹 Generar nuevos códigos
-          const nuevosCodigos = Array.from({ length: 1 }, () =>
-            Math.floor(100000 + Math.random() * 900000).toString()
-          );
-           
+const nuevosCodigos = Array.from({ length: 1 }, () =>
+  Math.floor(100000 + Math.random() * 900000).toString()
+);
 
-              // 🔹 Guardar en localStorage antes de navegar y se modifica codigos y indexActual en codigosss y indexActualss  para mejorar el almacenamiento en localstorage
-          localStorage.setItem("codigosss", JSON.stringify(nuevosCodigos));
-          localStorage.setItem("indexActualss", String(indexToShow));
+// 🔹 Guardar en localStorage antes de navegar
+localStorage.setItem("codigosss", JSON.stringify(nuevosCodigos));// codigos  se modifico a codigosss  con esto se resolvio el conflicto en localstorage
 
-          for (const codigo of nuevosCodigos) {
-            const payload = { numero_apto: String(apartmentNumber), codigo_generado: codigo };
-            await fetch("https://backend-1uwd.onrender.com/api/guardar", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-          }
 
-          
+localStorage.setItem("indexActualss", "0"); // indexActual  se modifico en indexActualss con esto se resolvio el conflicto en localstorage
+
+
+console.log("✅ LocalStorage actualizado con nuevos códigos:", nuevosCodigos);
+
+// 🔹 Enviar cada código al backend
+for (const codigo of nuevosCodigos) {
+  const payload = { numero_apto: String(apartmentNumber), codigo_generado: codigo };
+  console.log("📤 Enviando código al backend:", payload);
+
+  await fetch("https://backend-1uwd.onrender.com/api/guardar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
 
           // 🔹 Actualizar estado y navegar
           clickCount = (clickCount + 1) % 4;

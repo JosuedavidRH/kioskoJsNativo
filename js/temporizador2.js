@@ -1,7 +1,7 @@
 // js/temporizador2.js
 
 class Temporizador2 extends EventTarget {
-  constructor(initialTime = 1200) {
+  constructor(initialTime = 10800) {
     super();
     this.timeLeft = Number(localStorage.getItem("timeLeft2")) || initialTime;
     this.interval = null;
@@ -29,23 +29,37 @@ class Temporizador2 extends EventTarget {
       this.interval = null;
     }
     this.isRunning = false;
+    this.dispatchUpdate();
   }
 
-  reset(newTime = 1200) {
+  reset(newTime =10800) {
     this.stop();
     this.timeLeft = newTime;
     localStorage.setItem("timeLeft2", newTime);
     this.dispatchUpdate();
   }
 
-  formatTime(seconds = this.timeLeft) {
-    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
-    return `${m}:${s}`;
+  // ⚡ Nuevo método
+  setTimeLeft(value) {
+    this.timeLeft = value;
+    localStorage.setItem("timeLeft1", value);
+    this.dispatchUpdate();
+
+    if (this.timeLeft > 0 && !this.isRunning) {
+      this.start();
+    }
   }
 
+  // 🔹 Formato HH:mm:ss
+  formatTime(seconds = this.timeLeft) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
   onUpdate(callback) {
-    this.addEventListener("update", (e) => callback(e.detail));
+     this.addEventListener("update", (e) => callback(e.detail.timeLeft));
   }
 
   dispatchUpdate() {

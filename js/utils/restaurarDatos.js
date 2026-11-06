@@ -80,10 +80,52 @@ export const restaurarDatos = async ({
       statusActual,
     } = data.data;
 
-    const statusNum = statusActual != null ? Number(statusActual) : 0;
+// ---------------------------------------------------------------------
+    // --------Condiciones para restaurar datos   ---------------------
+    // ---------------------------------------------------------------------
+    
 
-    onClickCountChange?.(statusNum);
-    localStorage.setItem("clickCount", statusNum);
+    
+// Valor lógico para controlar temporizadores y facturas
+const statusNum = statusActual != null
+  ? Math.abs(Number(statusActual))
+  : 0;
+
+
+
+ // Convertir exclusivamente cuando el backend envíe 1
+if (Number(statusActual) === 1) {
+
+    const clickCountUI = 1;
+
+    onClickCountChange?.(clickCountUI);
+    localStorage.setItem("clickCount", clickCountUI);
+
+}
+
+
+// Convertir exclusivamente cuando el backend envíe 2
+if (Number(statusActual) === 2) {
+
+    const clickCountUI = -2;
+
+    onClickCountChange?.(clickCountUI);
+    localStorage.setItem("clickCount", clickCountUI);
+
+}
+
+// Cuando el backend envíe -2, clickCount será 2
+if (Number(statusActual) === -2) {
+
+    const clickCountUI = 2;
+
+    onClickCountChange?.(clickCountUI);
+    localStorage.setItem("clickCount", clickCountUI);
+
+}
+
+
+
 
     // ---------- 🕒 PRINCIPAL ----------
     if (statusNum === 0 || temporizadorPrincipal == null) {
@@ -148,7 +190,7 @@ export const restaurarDatos = async ({
     }
 
     // ---------- 🧾 FACTURA 1 ----------
-    if (onTimeLeftFactura1Change) {
+    if (onTimeLeftFactura1Change && Number(statusActual) !== -2) {
   if (statusNum === 0 || temporizadorFactura1 == null) {
     // 🔹 Inicializar factura 1
     const initialTime = 10800;
@@ -194,7 +236,53 @@ export const restaurarDatos = async ({
       }
     }
 
-    
+    // ---------- 🧾 FACTURA 2 ----------
+
+    if (onTimeLeftFactura2Change) {
+      if (statusNum < 2 || temporizadorFactura2 == null) {
+        // 🔹 Inicializar factura 2
+        const initialTime = 10800;
+        onTimeLeftFactura2Change(initialTime);
+        localStorage.setItem("timeLeft2", String(initialTime));
+
+        // 🔹 Enviar al backend (opcional)
+        try {
+          await fetch("https://backend-1uwd.onrender.com/api/realTime/temporizadorFactura2", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: apartmentNumber,
+              temporizadorFactura2: initialTime,
+            }),
+          });
+          console.log("✅ timeLeftFactura2 enviado al backend:", initialTime);
+        } catch (error) {
+          console.error("❌ Error enviando timeLeftFactura2 al backend:", error);
+        }
+
+        if (typeof startFactura2 === "function") startFactura2(0);
+      } else {
+        const tiempo2 = parseInt(temporizadorFactura2, 10);
+        if (!isNaN(tiempo2)) {
+          const horaCierre = new Date(updated_at).getTime();
+          const tiempoTranscurrido = Math.floor((Date.now() - horaCierre) / 1000);
+          const tiempoRestante = tiempo2 - tiempoTranscurrido;
+
+          console.log("⏱ temporizadorFactura2:", temporizadorFactura2);
+          console.log("⏳ tiempoTranscurrido:", tiempoTranscurrido);
+          console.log("⏰ tiempoRestante (Factura 2):", tiempoRestante);
+
+          if (tiempoRestante > 0) {
+            onTimeLeftFactura2Change(tiempoRestante);
+            localStorage.setItem("timeLeftFactura2", String(tiempoRestante));
+            if (typeof startFactura2 === "function") startFactura2(tiempoRestante);
+          } else {
+            onTimeLeftFactura2Change(0);
+            localStorage.setItem("timeLeftFactura2", "0");
+          }
+        }
+      }
+    }
     
     // 🔹 Ejecutar callback al final de restauración
     if (onRestauracionCompleta) onRestauracionCompleta();

@@ -5,6 +5,7 @@ import { LoginPage } from "./pages/login.js";
 import { RegisterPage } from "./pages/register.js";
 import { HomePage } from "./pages/home.js";
 import { SegundaPage } from "./pages/segunda.js";  
+import { TerceraPage } from "./pages/tercera.js";  // 🆕 Nueva página
 import { temporizador } from "./temporizador.js";
 
 import { restaurarDatos } from "./utils/restaurarDatos.js";
@@ -229,19 +230,36 @@ if (page === "home") {
 
 
 
-  // 🧩 SEGUNDA (nueva)
+  
 if (page === "segunda") {
   app.appendChild(
     SegundaPage({
       user: data.user,
-      codigos: data.codigos,        // ✅ agrega esto
-      indexActual: data.indexActual, // ✅ y esto
+      codigos: data.codigos,       
+      indexActual: data.indexActual,
+      navigate,
+    })
+  );
+  return;
+ }
+
+
+
+ // 🧩 TERCERA (nueva)
+if (page === "tercera") {
+  app.appendChild(
+    TerceraPage({
+      user: data.user,
+      codigos: data.codigos,        
+      indexActual: data.indexActual, 
       navigate,
     })
   );
   return;
  }
 }
+
+
 
 // 🔐 Inicialización
 window.onload = () => {
