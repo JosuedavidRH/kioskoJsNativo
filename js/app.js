@@ -175,56 +175,57 @@ if (page === "home") {
     },
     startFactura3: (v) => temporizador3?.startCountdown?.(v),
 
-    // 🔹 Callback al terminar restauración: renderizar HomePage
-    onRestauracionCompleta: () => {
-      app.appendChild(
-        HomePage(currentUser, async () => {
-          try {
-            const userId = currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
-            const storedClickCount = localStorage.getItem("clickCount");
-            const statusActual = storedClickCount !== null
-              ? Number(storedClickCount)
-              : currentUser?.clickCount || 0;
+     // 🔹 Callback al terminar restauración: renderizar HomePage
+onRestauracionCompleta: () => {
+  app.appendChild(
+    HomePage(currentUser, async () => {
 
-            console.log("🧭 Datos antes de cerrar sesión:", {
-              userId,
-              clickCount: storedClickCount,
-              timeLeftPrincipal: localStorage.getItem("timeLeftPrincipal"),
-              timeLeft1: localStorage.getItem("timeLeft1"),
-            });
+      try {
+        const userId = currentUser?.apartmentNumber || localStorage.getItem("apartmentNumber");
+        const storedClickCount = localStorage.getItem("clickCount");
+        const statusActual = storedClickCount !== null
+          ? Number(storedClickCount)
+          : currentUser?.clickCount || 0;
 
-            await cerrarSesionGlobal({
-              auto: false,
-              userId,
-              temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
-              statusActual,
-              temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
-              temporizadorFactura2: 0,
-              temporizadorFactura3: 0,
-            });
+        console.log("🧭 Datos antes de cerrar sesión:", {
+          userId,
+          clickCount: storedClickCount,
+          timeLeftPrincipal: localStorage.getItem("timeLeftPrincipal"),
+          timeLeft1: localStorage.getItem("timeLeft1"),
+        });
 
-            console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
-          } catch (err) {
-            console.error("❌ Error cerrando sesión manual:", err);
-          } finally {
-            if (temporizador?.stopCountdown) temporizador.stopCountdown();
-            if (temporizador1?.stopCountdown) temporizador1.stopCountdown();
-           
-            currentUser = null;
-            clickCount = 0;
-            factura1Terminada = false;
-            factura2Terminada = false;
-            factura3Terminada = false;
-            clicked = false;
+        await cerrarSesionGlobal({
+          auto: false,
+          userId,
+          temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
+          statusActual,
+          temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
+          temporizadorFactura2: Number(localStorage.getItem("timeLeft2")) || 0,
+          temporizadorFactura3: 0,
+        });
 
-            localStorage.clear();
-            window.location.reload();
-          }
-        })
-      );
-    }
-  });
+        console.log("✅ Sesión cerrada manualmente y datos enviados al backend");
+      } catch (err) {
+        console.error("❌ Error cerrando sesión manual:", err);
+      } finally {
+        if (temporizador?.stopCountdown) temporizador.stopCountdown();
+        if (temporizador1?.stopCountdown) temporizador1.stopCountdown();
 
+        currentUser = null;
+        clickCount = 0;
+        factura1Terminada = false;
+        factura2Terminada = false;
+        factura3Terminada = false;
+        clicked = false;
+
+        localStorage.clear();
+        window.location.reload();
+      }
+    }, navigate)
+  );
+}
+
+});
   return;
 }
 
