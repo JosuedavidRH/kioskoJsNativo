@@ -240,7 +240,7 @@ if (clickCount >= 1 || clickCount === -2) {
     localStorage.setItem("factura2Reiniciada", "true");
     window.temporizador2Detenido = false;
 
-    temporizador2.reset(60);   // vuelve a 60 y guarda timeLeft2
+    temporizador2.reset(10800);   // vuelve a 60 y guarda timeLeft2
     temporizador2.start();
 
     // Si estaba marcada como vencida, quitarlo (diferido para no re-renderizar en pleno render)
