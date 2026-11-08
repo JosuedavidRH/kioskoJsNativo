@@ -107,7 +107,7 @@ export function BotonPrincipal({
         // 🔎 Consultar statusActual (misma lógica y mismo backend que restaurarDatos)
 let bloquear = false;
 try {
-  const resStatus = await fetch(`http://localhost:4000/api/realtime/${apartmentNumber}`);
+  const resStatus = await fetch(`https://backend-1uwd.onrender.com/api/realTime/${apartmentNumber}`);
 
   if (!resStatus.ok) {
     throw new Error(`HTTP ${resStatus.status}`);
