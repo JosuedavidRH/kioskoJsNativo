@@ -13,7 +13,8 @@ export function BotonPrincipal({
   setIsProcessing = () => {},
   apartmentNumber,
   startCountdown = () => {},
-  initialTime = 43200
+  initialTime = 43200,
+   onLogout = () => {}          // 👈 nueva
 }) {
   let clickCount = Number(localStorage.getItem("clickCount") || initialClickCount);
   let processing = isProcessing;
@@ -102,6 +103,42 @@ export function BotonPrincipal({
 
     try {
       if (clickCount === 0) {
+
+        // 🔎 Consultar statusActual (misma lógica y mismo backend que restaurarDatos)
+let bloquear = false;
+try {
+  const resStatus = await fetch(`http://localhost:4000/api/realtime/${apartmentNumber}`);
+
+  if (!resStatus.ok) {
+    throw new Error(`HTTP ${resStatus.status}`);
+  }
+
+  const dataStatus = await resStatus.json();
+  console.log("🔍 Datos recibidos del backend (status):", dataStatus);
+
+  if (dataStatus.success && dataStatus.data) {
+    const { statusActual } = dataStatus.data;
+    console.log("🔎 statusActual consultado:", statusActual);
+
+    if (Number(statusActual) === 1) {
+      bloquear = true;
+    }
+  }
+  // success false o data null → usuario nuevo → se permite comprar
+} catch (e) {
+  console.warn("⚠️ No se pudo verificar statusActual → se bloquea por seguridad:", e);
+  bloquear = true;
+}
+
+// 🚫 Si el backend devuelve 1 (o no se pudo verificar), NO navegar a segunda y cerrar sesión
+if (bloquear) {
+  console.warn("⛔ COMPRAR bloqueado, no se navega a segunda → cerrando sesión");
+  processing = false;
+  setIsProcessing(false);
+  updateButtonState();
+  onLogout();                  // 👈 activa el cierre de sesión
+  return;
+}
 
         console.log("📦 apartmentNumber:", apartmentNumber);
 

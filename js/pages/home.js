@@ -167,7 +167,7 @@ wrapper.appendChild(contenedores);
   box.style.transform = "translateY(-300px)";
 }
 
-
+   
   // --- BotonPrincipal ---
   if (clickCount === 0) {
     const botonPrincipal = BotonPrincipal({
@@ -184,13 +184,17 @@ wrapper.appendChild(contenedores);
       apartmentNumber: user.apartmentNumber,
       // 🔹 Inicia el temporizador al primer clic
       startCountdown: (t = 120) => temporizador.startCountdown(t),
+
+      // 🔒 Se ejecuta cuando COMPRAR se bloquea (statusActual = 1 o no verificado)
+      onLogout: () => {
+        window.temporizadorListenerActivo = false;
+        onLogout();
+      },
     });
     box.appendChild(botonPrincipal);
   }
 
   footer.appendChild(box);
-
-
 
   // --- Botón cerrar sesión ---
     if (clickCount === 0 || clickCount === 1 || clickCount === 2 || clickCount === -2) {
@@ -332,7 +336,7 @@ wrapper.appendChild(contenedores);
     boxActualizado.style.marginBottom = "0px";
     boxActualizado.style.transform = "translateY(-300px)";
 
-    // --- Botón principal nuevamente ---
+    // --- BotonPrincipal nuevamente ---
     if (clickCount === 0) {
       const botonPrincipal = BotonPrincipal({
         clickCount,
@@ -346,7 +350,14 @@ wrapper.appendChild(contenedores);
         isProcessing: user.isProcessing || false,
         setIsProcessing: (v) => { user.isProcessing = v; },
         apartmentNumber: user.apartmentNumber,
+        // 🔹 Inicia el temporizador al primer clic
         startCountdown: (t = 120) => temporizador.startCountdown(t),
+
+        // 🔒 Se ejecuta cuando COMPRAR se bloquea (statusActual = 1 o no verificado)
+        onLogout: () => {
+          window.temporizadorListenerActivo = false;
+          onLogout();
+        },
       });
       boxActualizado.appendChild(botonPrincipal);
     }
