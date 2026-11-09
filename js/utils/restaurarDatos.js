@@ -20,6 +20,28 @@ export const restaurarDatos = async ({
   onRestauracionCompleta, // 🔹 NUEVO callback
 }) => {
   try {
+
+
+   // ============================================================
+    // 🛑 OMITIR RESTAURACIÓN SI SE DETECTÓ UN CÓDIGO QR VÁLIDO
+    // ============================================================
+
+    if (localStorage.getItem("omitirRestauracionUnaVez") === "1") {
+
+      localStorage.removeItem("omitirRestauracionUnaVez");
+
+      console.log("🛑 Restauración omitida: código QR válido detectado");
+
+      if (onRestauracionCompleta) onRestauracionCompleta();
+
+      return;
+    }
+
+
+ // ============================================================
+    // -------- CONSULTAR BACKEND --------
+    // ============================================================
+
     const res = await fetch(`https://backend-1uwd.onrender.com/api/realTime/${apartmentNumber}`);
     const data = await res.json();
 

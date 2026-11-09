@@ -237,14 +237,20 @@ export function TerceraPage({ user, codigos: codigosPasados, indexActual: indexP
             return;
           }
 
-          // 🔸 Caso 2: hay código válido de 6 dígitos → HOME clickCount = 1
-          const codigo = data.data[0]?.codigo_qr;
-          if (codigo && /^\d{6}$/.test(codigo)) {
-            console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 1");
-            localStorage.setItem("clickCount", "1");
-            console.log("🟡 Llamando guardarStatusActual...");
-            await guardarStatusActual(1,apartmentNumber);
-          }
+           // 🔸 Caso 2: hay código válido de 6 dígitos → HOME clickCount = 1
+const codigo = data.data[0]?.codigo_qr;
+
+if (codigo && /^\d{6}$/.test(codigo)) {
+  console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 1");
+
+  localStorage.setItem("clickCount", "1");
+
+  // 🛑 Evitar restaurarDatos al regresar a HOME
+  localStorage.setItem("omitirRestauracionUnaVez", "1");
+
+  console.log("🟡 Llamando guardarStatusActual...");
+  await guardarStatusActual(1, apartmentNumber);
+}
 
           navigate("home");
         } catch (error) {
