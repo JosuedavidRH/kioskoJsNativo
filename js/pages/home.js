@@ -49,7 +49,7 @@ export function HomePage(user, onLogout, navigate) {
 
     // Función que actualiza la vista del temporizador
     function updateTimer() {
-      timerBox.textContent = ` ${temporizador.formatTimeLeft(temporizador.timeLeft)}`;
+      timerBox.textContent = ` `;
     }
 
     // Actualización inicial
