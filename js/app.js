@@ -424,7 +424,7 @@ window.addEventListener("beforeunload", async (event) => {
     // ───────────────────────────────────────────────
     const codigo = data.data?.[0]?.codigo_qr;
 
-    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual === 0) {
+    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual === 1) {
       console.log("🟢 Código detectado:", codigo, "→ HOME clickCount = 0");
       localStorage.setItem("clickCount", "0");
 
@@ -510,7 +510,7 @@ window.addEventListener("beforeunload", async (event) => {
 
     // 🔸 Caso 2 tercera.js : hay código de 6 dígitos → HOME clickCount = 1 (solo si clickCount > 1)
     
-    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual === 1) {
+    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual === 2) {
       console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 1");
       localStorage.setItem("clickCount", "1");
       localStorage.setItem("omitirRestauracionUnaVez", "1"); // 🛑 evita restaurarDatos al volver a HOME
