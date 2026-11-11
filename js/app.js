@@ -19,6 +19,7 @@ import { temporizador3 } from "./temporizador3.js";
 
 import { guardarStatusActual0 } from "./utils/guardarStatusActual0.js";
 import { guardarStatusActual } from "./utils/guardarStatusActual.js";
+import { guardarStatusActual2 } from "./utils/guardarStatusActual2.js";
 
 import { enviarWhatsApp } from "./utils/enviarWhatsApp.js";
 
@@ -315,7 +316,12 @@ function obtenerNumeroUsuario() {
 
 
 
-// 🛑🔁 Cierre automático seguro (version produccion)
+ // ----------------------------------------------------------------------------------------------------------
+
+    // 🛑🔁 Cierre automático seguro (version PRODUCCION ) NOTA: navigator.sendBeacon SI FUNCIONA EN "PRODUCCION"
+
+     // --------------------------------------------------------------------------------------------------------------
+
 window.addEventListener("beforeunload", async (event) => {
   try {
     if (!currentUser) return;
@@ -443,6 +449,85 @@ window.addEventListener("beforeunload", async (event) => {
       console.log("🚫 No se cumple CASO 2");
     }
 
+    
+     
+    // -------- condicionales  tercera.js  -------------------------------
+   
+    // 🔸 Caso 1 tercera.js : sin códigos → HOME clickCount = 2 (solo si clickCount > 1)
+    if (
+      (!data.success || !data.data || data.data.length === 0) && 
+      clickCountActual > 1
+    ) {
+      console.log("⚪ No hay códigos activos → HOME clickCount = 2");
+      localStorage.setItem("clickCount", "2");
+
+      // ⭐ Obtener número real del usuario
+      const userPhone = obtenerNumeroUsuario();
+      console.log("📞 Número capturado para WhatsApp:", userPhone);
+
+      try {
+        if (apartmentNumber) {
+          console.log("📤 Enviando guardarStatusActual2 (-2) con apartmentNumber:", apartmentNumber);
+
+          // ❗ NO usar await en beforeunload → se lanza sin esperar
+          guardarStatusActual2(-2, apartmentNumber);
+
+          // 🟢 Enviar WhatsApp sin await (flujo normal)
+          if (userPhone) {
+            console.log("📨 Enviando notificación WhatsApp al usuario...");
+            enviarWhatsApp(userPhone);
+            console.log("🟢 Llamado enviarWhatsApp ejecutado");
+          } else {
+            console.warn("⚠️ No se encontró el número del usuario en localStorage");
+          }
+
+          // ⭐⭐ BACKUP sendBeacon — para garantizar envío en cierre
+          const beaconPayload = JSON.stringify({
+            to: userPhone
+          });
+
+          const blob = new Blob([beaconPayload], { type: "application/json" });
+
+          const beaconOk = navigator.sendBeacon(
+            "https://backend-1uwd.onrender.com/api/enviar-factura-whatsapp",
+            blob
+          );
+
+          console.log("🟡 Backup sendBeacon →", beaconOk ? "OK" : "FALLÓ");
+
+        } else {
+          console.warn("⚠️ No se encontró apartmentNumber para guardar statusActual=2");
+        }
+      } catch (err) {
+        console.error("❌ Error en guardarStatusActual2(-2) o WhatsApp:", err);
+      }
+
+    } else {
+      console.log("🚫 No se cumple CASO 1");
+    }
+
+
+
+    // 🔸 Caso 2 tercera.js : hay código de 6 dígitos → HOME clickCount = 1 (solo si clickCount > 1)
+    
+    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 1) {
+      console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 1");
+      localStorage.setItem("clickCount", "1");
+      localStorage.setItem("omitirRestauracionUnaVez", "1"); // 🛑 evita restaurarDatos al volver a HOME
+
+      console.log("🟡 Llamando guardarStatusActual...");
+
+      if (location.hostname !== "localhost") {
+        const payload1 = JSON.stringify({ userId: apartmentNumber, statusActual: 1 });
+        navigator.sendBeacon(
+          "https://backend-1uwd.onrender.com/api/realTime/statusActual",
+          new Blob([payload1], { type: "application/json" })
+        );
+        console.log("📡 Enviado con sendBeacon (statusActual=1)");
+      } else {
+        await guardarStatusActual(1, apartmentNumber);
+      }
+    }
 
 
     // 🔹 Cierre global de sesión (NO usar await)
