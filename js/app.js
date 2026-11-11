@@ -367,7 +367,7 @@ window.addEventListener("beforeunload", async (event) => {
     // ───────────────────────────────────────────────
     if (
       (!data.success || !data.data || data.data.length === 0) && 
-      clickCountActual > 0
+      clickCountActual === 1
     ) {
       console.log("⚪ No hay códigos activos → HOME clickCount = 1");
       localStorage.setItem("clickCount", "1");
@@ -424,7 +424,7 @@ window.addEventListener("beforeunload", async (event) => {
     // ───────────────────────────────────────────────
     const codigo = data.data?.[0]?.codigo_qr;
 
-    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 0) {
+    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual === 0) {
       console.log("🟢 Código detectado:", codigo, "→ HOME clickCount = 0");
       localStorage.setItem("clickCount", "0");
 
@@ -453,10 +453,10 @@ window.addEventListener("beforeunload", async (event) => {
      
     // -------- condicionales  tercera.js  -------------------------------
    
-    // 🔸 Caso 1 tercera.js : sin códigos → HOME clickCount = 2 (solo si clickCount > 1)
+    // 🔸 Caso 1 tercera.js : sin códigos → HOME clickCount = 2 
     if (
       (!data.success || !data.data || data.data.length === 0) && 
-      clickCountActual > 1
+      clickCountActual === 2
     ) {
       console.log("⚪ No hay códigos activos → HOME clickCount = 2");
       localStorage.setItem("clickCount", "2");
@@ -510,7 +510,7 @@ window.addEventListener("beforeunload", async (event) => {
 
     // 🔸 Caso 2 tercera.js : hay código de 6 dígitos → HOME clickCount = 1 (solo si clickCount > 1)
     
-    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual > 1) {
+    if (codigo && /^\d{6}$/.test(codigo) && clickCountActual === 1) {
       console.log("🟢 Código válido detectado:", codigo, "→ HOME clickCount = 1");
       localStorage.setItem("clickCount", "1");
       localStorage.setItem("omitirRestauracionUnaVez", "1"); // 🛑 evita restaurarDatos al volver a HOME
@@ -537,7 +537,7 @@ window.addEventListener("beforeunload", async (event) => {
       temporizadorPrincipal: Number(localStorage.getItem("timeLeftPrincipal")) || 0,
       statusActual,
       temporizadorFactura1: Number(localStorage.getItem("timeLeft1")) || 0,
-      temporizadorFactura2: 0,
+      temporizadorFactura2: Number(localStorage.getItem("timeLeft2")) || 0,
       temporizadorFactura3: 0,
     });
 
