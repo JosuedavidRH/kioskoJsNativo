@@ -150,7 +150,7 @@ if (Number(statusActual) === -2) {
 
 
     // ---------- 🕒 PRINCIPAL ----------
-    if ((statusNum >= 0  || temporizadorPrincipal == null) {
+    if (statusNum >= 0  || temporizadorPrincipal == null) {
   const timeLeft = 180;
 
   // 🔹 Actualizar UI
