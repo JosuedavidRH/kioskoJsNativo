@@ -42,7 +42,7 @@ export function HomePage(user, onLogout, navigate) {
   timerBox.style.fontSize = "21px";
   timerBox.style.fontWeight = "bold";
 
-  
+
  // 👇 solo se muestra si clickCount es mayor o igual a 0
 if (clickCount >= 0 || clickCount === -2) {
 
@@ -69,7 +69,7 @@ if (clickCount >= 0 || clickCount === -2) {
         if (clickCount === 0) {
           timerBox.style.color = "transparent";
         } else {
-          timerBox.style.color = "white";
+          timerBox.style.color = "transparent";
         }
 
         if (fondoRojo) {
