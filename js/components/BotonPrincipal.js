@@ -22,6 +22,15 @@ export function BotonPrincipal({
   console.log("📱 username recibido:", username);
 
 
+  // ⏱️ Bloqueo boton principal por tiempo restante del temporizador principal
+  const SEGUNDOS_BLOQUEO = 50;
+  const guardado = Number(localStorage.getItem("timeLeftPrincipal") || 0);
+  let tiempoRestante = guardado > 0 ? guardado : Infinity;
+  const bloqueadoPorTiempo = () => clickCount === 0 && tiempoRestante <= SEGUNDOS_BLOQUEO;
+
+
+
+
   // 🔹 Guardar username (numero de whatsApp )en localStorage
   if (username) {
   localStorage.setItem("user", username);
@@ -74,8 +83,9 @@ export function BotonPrincipal({
 
 
   const updateButtonState = () => {
-    button.disabled = clickCount === 3 || processing;
+    button.disabled = clickCount === 3 || processing || bloqueadoPorTiempo();
     button.style.opacity = button.disabled ? 0.6 : 1;
+    button.style.cursor = button.disabled ? "not-allowed" : "pointer";
 
     if (clickCount === 0) {
       button.textContent = "COMPRAR";
@@ -94,7 +104,7 @@ export function BotonPrincipal({
   };
 
   const handleClick = async () => {
-    if (processing || clickCount === 3) return;
+    if (processing || clickCount === 3 || bloqueadoPorTiempo()) return;
     processing = true;
     setIsProcessing(true);
     updateButtonState();
@@ -242,6 +252,22 @@ for (const codigo of nuevosCodigos) {
     setIsProcessing(false);
     updateButtonState();
   };
+
+  // 🔁 Escuchar el temporizador y quitar el listener cuando el botón ya no esté en el DOM
+  let estuvoConectado = false;
+  const onTimerUpdate = (e) => {
+    if (button.isConnected) {
+      estuvoConectado = true;
+    } else if (estuvoConectado) {
+      temporizador.removeEventListener("update", onTimerUpdate);
+      return;
+    }
+    tiempoRestante = e.detail.timeLeft;
+    updateButtonState();
+  };
+  temporizador.addEventListener("update", onTimerUpdate);
+
+
 
   button.addEventListener("click", handleClick);
   updateButtonState();

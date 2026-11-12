@@ -3,6 +3,7 @@
 
 import { temporizadorfactura1 as TemporizadorFactura1 } from "../temporizadorfactura1.js";
 import { temporizadorfactura2 as TemporizadorFactura2 } from "../temporizadorfactura2.js";
+import { temporizador } from "../temporizador.js";
 import { temporizador2 } from "../temporizador2.js";  
 import { BotonPrincipal } from "../components/BotonPrincipal.js";
 import { iniciarCompra } from "../utils/iniciarCompra.js";
@@ -141,98 +142,174 @@ if (clickCount >= 1 || clickCount === -2) {
       const textoEspera = document.createElement("span");
 
       textoEspera.textContent =
-        "TIENES 1 hora DE PLAZO PARA REALIZAR EL PAGO DE TUS COMPRAS REALIZADAS";
+        "TIENES 1 HORA PARA PAGAR TU FACTURA # 1";
 
       textoEspera.style.color = "white";
-      textoEspera.style.fontSize = "0.4rem";
+      textoEspera.style.fontSize = "1.5 rem";
       textoEspera.style.fontWeight = "500";
       textoEspera.style.textAlign = "center";
 
       bloqueFactura1.appendChild(textoEspera);
     }
 
-    // 🟢 BOTÓN: REALIZAR OTRA COMPRA
-    // NO aparece cuando clickCount es 2 o -2.
-    if (
-      !factura1Terminada &&
-      clickCount !== 2 &&
-      clickCount !== -2
-    ) {
+    
+// 🟢 BOTÓN: REALIZAR OTRA COMPRA
+// NO aparece cuando clickCount es 2 o -2.
+if (
+  !factura1Terminada &&
+  clickCount !== 2 &&
+  clickCount !== -2
+) {
 
-      const btnOtraCompra = document.createElement("button");
-      btnOtraCompra.textContent = "REALIZAR OTRA COMPRA";
+  // ⏱️ BLOQUEO POR TEMPORIZADOR PRINCIPAL
+  const SEGUNDOS_BLOQUEO = 50;
 
-      btnOtraCompra.style.width = "110px";
-      btnOtraCompra.style.height = "25px";
-      btnOtraCompra.style.background =
-        "linear-gradient(145deg, #22c55e, #15803d)";
-      btnOtraCompra.style.color = "white";
-      btnOtraCompra.style.fontWeight = "bold";
-      btnOtraCompra.style.fontSize = "0.45rem";
-      btnOtraCompra.style.border = "none";
-      btnOtraCompra.style.borderRadius = "12px";
-      btnOtraCompra.style.cursor = "pointer";
-      btnOtraCompra.style.boxShadow = "0 5px 12px rgba(0,0,0,0.35)";
-      btnOtraCompra.style.transition = "all 0.2s ease";
-      btnOtraCompra.style.transform = "scale(1)";
+  const guardado = localStorage.getItem("timeLeftPrincipal");
 
-      // ✨ Efecto al pasar el cursor
-      btnOtraCompra.addEventListener("mouseenter", () => {
-        btnOtraCompra.style.transform = "scale(1.06) translateY(-3px)";
-        btnOtraCompra.style.boxShadow = "0 8px 18px rgba(0,0,0,0.4)";
-        btnOtraCompra.style.background =
-          "linear-gradient(145deg, #4ade80, #16a34a)";
-      });
+  let tiempoRestante =
+    guardado !== null && guardado !== ""
+      ? Number(guardado)
+      : Infinity;
 
-      // 🔹 Restaurar apariencia
-      btnOtraCompra.addEventListener("mouseleave", () => {
-        btnOtraCompra.style.transform = "scale(1)";
-        btnOtraCompra.style.boxShadow = "0 5px 12px rgba(0,0,0,0.35)";
-        btnOtraCompra.style.background =
-          "linear-gradient(145deg, #22c55e, #15803d)";
-      });
+  let procesandoOtraCompra = false;
 
-      // 👆 Efecto de pulsación
-      btnOtraCompra.addEventListener("mousedown", () => {
-        btnOtraCompra.style.transform = "scale(0.95)";
-      });
+  const bloqueadoPorTiempo = () =>
+    tiempoRestante <= SEGUNDOS_BLOQUEO;
 
-      btnOtraCompra.addEventListener("mouseup", () => {
-        btnOtraCompra.style.transform = "scale(1.06) translateY(-3px)";
-      });
+  const btnOtraCompra = document.createElement("button");
+  btnOtraCompra.textContent = "REALIZAR OTRA COMPRA";
 
-      btnOtraCompra.addEventListener("click", async () => {
-        if (btnOtraCompra.disabled) return;
+  // dimension circular
+  btnOtraCompra.style.width = "110px";
+  btnOtraCompra.style.height = "110px";
+  btnOtraCompra.style.borderRadius = "50%";
+  btnOtraCompra.style.flexShrink = "0";
+  btnOtraCompra.style.padding = "10px";
+  btnOtraCompra.style.background =
+    "linear-gradient(145deg, #22c55e, #15803d)";
+  btnOtraCompra.style.color = "white";
+  btnOtraCompra.style.fontWeight = "bold";
+  btnOtraCompra.style.fontSize = "0.75rem";
+  btnOtraCompra.style.border = "none";
+  btnOtraCompra.style.cursor = "pointer";
+  btnOtraCompra.style.boxShadow = "0 5px 12px rgba(0,0,0,0.35)";
+  btnOtraCompra.style.transition = "all 0.2s ease";
+  btnOtraCompra.style.transform = "scale(1)";
 
-        const apartmentNumber =
-          user?.apartmentNumber || localStorage.getItem("apartmentNumber");
-        const textoOriginal = btnOtraCompra.textContent;
+  // 🔒 ACTUALIZAR ESTADO DEL BOTÓN
+  const actualizarEstadoBoton = () => {
 
-        btnOtraCompra.disabled = true;
-        btnOtraCompra.style.opacity = 0.6;
-        btnOtraCompra.textContent = "Generando…";
+    btnOtraCompra.disabled =
+      procesandoOtraCompra || bloqueadoPorTiempo();
 
-        try {
-          await iniciarCompra({
-            apartmentNumber,
-            clickCount: Number(localStorage.getItem("clickCount")) || clickCount,
-            navigate,
-            destino: "tercera",
-          });
-        } catch (err) {
-          console.error("❌ No se pudo iniciar la compra:", err);
-          btnOtraCompra.disabled = false;
-          btnOtraCompra.style.opacity = 1;
-          btnOtraCompra.textContent = "Reintentar";
-          setTimeout(() => (btnOtraCompra.textContent = textoOriginal), 2500);
-        }
-      });
+    btnOtraCompra.style.opacity =
+      btnOtraCompra.disabled ? 0.6 : 1;
 
-      bloqueFactura1.appendChild(btnOtraCompra);
+    btnOtraCompra.style.cursor =
+      btnOtraCompra.disabled ? "not-allowed" : "pointer";
+  };
+
+  // ✨ Efecto al pasar el cursor
+  btnOtraCompra.addEventListener("mouseenter", () => {
+    if (btnOtraCompra.disabled) return;
+
+    btnOtraCompra.style.transform = "scale(1.06) translateY(-3px)";
+    btnOtraCompra.style.boxShadow = "0 8px 18px rgba(0,0,0,0.4)";
+    btnOtraCompra.style.background =
+      "linear-gradient(145deg, #4ade80, #16a34a)";
+  });
+
+  // 🔹 Restaurar apariencia
+  btnOtraCompra.addEventListener("mouseleave", () => {
+    btnOtraCompra.style.transform = "scale(1)";
+    btnOtraCompra.style.boxShadow = "0 5px 12px rgba(0,0,0,0.35)";
+    btnOtraCompra.style.background =
+      "linear-gradient(145deg, #22c55e, #15803d)";
+  });
+
+  // 👆 Efecto de pulsación
+  btnOtraCompra.addEventListener("mousedown", () => {
+    if (btnOtraCompra.disabled) return;
+    btnOtraCompra.style.transform = "scale(0.95)";
+  });
+
+  btnOtraCompra.addEventListener("mouseup", () => {
+    if (btnOtraCompra.disabled) return;
+    btnOtraCompra.style.transform = "scale(1.06) translateY(-3px)";
+  });
+
+  // 🟢 ACTUALIZAR BLOQUEO SEGÚN EL TEMPORIZADOR
+  let estuvoConectado = false;
+
+  const onTimerUpdate = (e) => {
+
+    if (btnOtraCompra.isConnected) {
+      estuvoConectado = true;
+
+    } else if (estuvoConectado) {
+      temporizador.removeEventListener("update", onTimerUpdate);
+      return;
     }
+
+    tiempoRestante = e.detail.timeLeft;
+
+    actualizarEstadoBoton();
+  };
+
+  temporizador.addEventListener("update", onTimerUpdate);
+
+  // 🔹 Ejecutar compra
+  btnOtraCompra.addEventListener("click", async () => {
+
+    if (procesandoOtraCompra || bloqueadoPorTiempo()) return;
+
+    const apartmentNumber =
+      user?.apartmentNumber || localStorage.getItem("apartmentNumber");
+
+    const textoOriginal = "REALIZAR OTRA COMPRA";
+
+    procesandoOtraCompra = true;
+    actualizarEstadoBoton();
+
+    btnOtraCompra.textContent = "Generando…";
+
+    try {
+
+      await iniciarCompra({
+        apartmentNumber,
+        clickCount: Number(localStorage.getItem("clickCount")) || clickCount,
+        navigate,
+        destino: "tercera",
+      });
+
+    } catch (err) {
+
+      console.error("❌ No se pudo iniciar la compra:", err);
+
+      procesandoOtraCompra = false;
+      actualizarEstadoBoton();
+
+      btnOtraCompra.textContent = "Reintentar";
+
+      setTimeout(() => {
+        btnOtraCompra.textContent = textoOriginal;
+      }, 2500);
+    }
+  });
+
+  // 🔹 Aplicar bloqueo inicial
+  actualizarEstadoBoton();
+
+  bloqueFactura1.appendChild(btnOtraCompra);
+}
+
 
     contenedorCentral.appendChild(bloqueFactura1);
 }
+  
+
+
+   
 
 
     // 🔄 Reiniciar temporizador 2 una sola vez al llegar a clickCount 2
@@ -240,7 +317,7 @@ if (clickCount >= 1 || clickCount === -2) {
     localStorage.setItem("factura2Reiniciada", "true");
     window.temporizador2Detenido = false;
 
-    temporizador2.reset(10800);   // vuelve a 60 y guarda timeLeft2
+    temporizador2.reset(3600);   // vuelve a 60 y guarda timeLeft2
     temporizador2.start();
 
     // Si estaba marcada como vencida, quitarlo (diferido para no re-renderizar en pleno render)
@@ -355,10 +432,10 @@ if (clickCount >= 1 || clickCount === -2) {
       const textoEspera2 = document.createElement("span");
 
       textoEspera2.textContent =
-        "TIENES 1 hora DE PLAZO PARA REALIZAR EL PAGO DE TUS COMPRAS REALIZADAS";
+        "TIENES 1 HORA PARA PAGAR TU FACTURA # 2";
 
       textoEspera2.style.color = "white";
-      textoEspera2.style.fontSize = "0.4rem";
+      textoEspera2.style.fontSize = "1.5 rem";
       textoEspera2.style.fontWeight = "500";
       textoEspera2.style.textAlign = "center";
 
