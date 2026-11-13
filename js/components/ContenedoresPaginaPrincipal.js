@@ -152,8 +152,9 @@ if (clickCount >= 1 || clickCount === -2) {
       bloqueFactura1.appendChild(textoEspera);
     }
 
-    
-// 🟢 BOTÓN: REALIZAR OTRA COMPRA
+
+
+   // 🟢 BOTÓN: REALIZAR OTRA COMPRA
 // NO aparece cuando clickCount es 2 o -2.
 if (
   !factura1Terminada &&
@@ -275,6 +276,44 @@ if (
 
     try {
 
+      // 🔎 Consultar statusActual (misma lógica y mismo backend que BotonPrincipal)
+      let bloquear = false;
+      try {
+        const resStatus = await fetch(
+          `https://backend-1uwd.onrender.com/api/realTime/${apartmentNumber}`
+        );
+
+        if (!resStatus.ok) {
+          throw new Error(`HTTP ${resStatus.status}`);
+        }
+
+        const dataStatus = await resStatus.json();
+        console.log("🔍 Datos recibidos del backend (status):", dataStatus);
+
+        if (dataStatus.success && dataStatus.data) {
+          const statusActual = Number(dataStatus.data.statusActual);
+          console.log("🔎 statusActual consultado:", statusActual);
+
+          if (statusActual === 2 || statusActual === -2) {
+            bloquear = true;
+          }
+        }
+        // success false o data null → usuario nuevo → se permite
+      } catch (e) {
+        console.warn("⚠️ No se pudo verificar statusActual → se bloquea por seguridad:", e);
+        bloquear = true;
+      }
+
+      // 🚫 Bloqueado: no navegar a tercera y cerrar sesión
+      if (bloquear) {
+        console.warn("⛔ REALIZAR OTRA COMPRA bloqueado, no se navega a tercera → cerrando sesión");
+        procesandoOtraCompra = false;
+        btnOtraCompra.textContent = textoOriginal;
+        actualizarEstadoBoton();
+        onLogout();
+        return;
+      }
+
       await iniciarCompra({
         apartmentNumber,
         clickCount: Number(localStorage.getItem("clickCount")) || clickCount,
@@ -302,7 +341,7 @@ if (
 
   bloqueFactura1.appendChild(btnOtraCompra);
 }
-
+    
 
     contenedorCentral.appendChild(bloqueFactura1);
 }
